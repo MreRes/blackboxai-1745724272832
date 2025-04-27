@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Laporan - Asisten Keuangan</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/id.js"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Navigation (same as other pages) -->
+    <nav class="bg-white shadow-lg">
+        <!-- ... (copy navigation code from dashboard.html) ... -->
+    </nav>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+        <!-- Header -->
+        <div class="px-4 sm:px-0 flex justify-between items-center">
+            <h2 class="text-2xl font-semibold text-gray-900">Laporan Keuangan</h2>
+            <div class="flex space-x-4">
+                <select id="periodSelect" class="block w-48 pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md">
+                    <option value="daily">Harian</option>
+                    <option value="weekly">Mingguan</option>
+                    <option value="monthly" selected>Bulanan</option>
+                    <option value="yearly">Tahunan</option>
+                    <option value="custom">Kustom</option>
+                </select>
+                <input type="text" id="dateRange" class="block w-64 pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md" placeholder="Pilih rentang tanggal">
+                <button onclick="exportReport()" class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                    <i class="fas fa-download -ml-1 mr-2"></i>
+                    Export
+                </button>
+            </div>
+        </div>
+
+        <!-- Summary Cards -->
+        <div class="mt-6 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
+            <!-- Total Income -->
+            <div class="bg-white overflow-hidden shadow rounded-lg">
+                <div class="p-5">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0">
+                            <i class="fas fa-arrow-down text-2xl text-green-600"></i>
+                        </div>
+                        <div class="ml-5 w-0 flex-1">
+                            <dl>
+                                <dt class="text-sm font-medium text-gray-500 truncate">Total Pemasukan</dt>
+                                <dd class="text-lg font-semibold text-gray-900" id="totalIncome">Loading...</dd>
+                            </dl>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Total Expense -->
+            <div class="bg-white overflow-hidden shadow rounded-lg">
+                <div class="p-5">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0">
+                            <i class="fas fa-arrow-up text-2xl text-red-600"></i>
+                        </div>
+                        <div class="ml-5 w-0 flex-1">
+                            <dl>
+                                <dt class="text-sm font-medium text-gray-500 truncate">Total Pengeluaran</dt>
+                                <dd class="text-lg font-semibold text-gray-900" id="totalExpense">Loading...</dd>
+                            </dl>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Net Income -->
+            <div class="bg-white overflow-hidden shadow rounded-lg">
+                <div class="p-5">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0">
+                            <i class="fas fa-chart-line text-2xl text-blue-600"></i>
+                        </div>
+                        <div class="ml-5 w-0 flex-1">
+                            <dl>
+                                <dt class="text-sm font-medium text-gray-500 truncate">Pendapatan Bersih</dt>
+                                <dd class="text-lg font-semibold text-gray-900" id="netIncome">Loading...</dd>
+                            </dl>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Average Daily Expense -->
+            <div class="bg-white overflow-hidden shadow rounded-lg">
+                <div class="p-5">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0">
+                            <i class="fas fa-calculator text-2xl text-purple-600"></i>
+                        </div>
+                        <div class="ml-5 w-0 flex-1">
+                            <dl>
+                                <dt class="text-sm font-medium text-gray-500 truncate">Rata-rata Pengeluaran Harian</dt>
+                                <dd class="text-lg font-semibold text-gray-900" id="avgDailyExpense">Loading...</dd>
+                            </dl>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Charts -->
+        <div class="mt-8 grid grid-cols-1 gap-5 lg:grid-cols-2">
+            <!-- Income vs Expense Trend -->
+            <div class="bg-white overflow-hidden shadow rounded-lg">
+                <div class="p-5">
+                    <h3 class="text-lg leading-6 font-medium text-gray-900">Tren Pemasukan vs Pengeluaran</h3>
+                    <div class="mt-5">
+                        <canvas id="trendChart" height="300"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Category Distribution -->
+            <div class="bg-white overflow-hidden shadow rounded-lg">
+                <div class="p-5">
+                    <h3 class="text-lg leading-6 font-medium text-gray-900">Distribusi Kategori</h3>
+                    <div class="mt-5">
+                        <canvas id="categoryChart" height="300"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Detailed Analysis -->
+        <div class="mt-8 grid grid-cols-1 gap-5 lg:grid-cols-2">
+            <!-- Top Expenses -->
+            <div class="bg-white overflow-hidden shadow rounded-lg">
+                <div class="p-5">
+                    <h3 class="text-lg leading-6 font-medium text-gray-900">Pengeluaran Terbesar</h3>
+                    <div class="mt-5">
+                        <ul class="divide-y divide-gray-200" id="topExpenses">
+                            <li class="text-center py-4 text-gray-500">Loading...</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Budget Performance -->
+            <div class="bg-white overflow-hidden shadow rounded-lg">
+                <div class="p-5">
+                    <h3 class="text-lg leading-6 font-medium text-gray-900">Performa Budget</h3>
+                    <div class="mt-5">
+                        <ul class="divide-y divide-gray-200" id="budgetPerformance">
+                            <li class="text-center py-4 text-gray-500">Loading...</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Financial Health Score -->
+        <div class="mt-8">
+            <div class="bg-white overflow-hidden shadow rounded-lg">
+                <div class="p-5">
+                    <h3 class="text-lg leading-6 font-medium text-gray-900">Skor Kesehatan Keuangan</h3>
+                    <div class="mt-5">
+                        <div class="flex items-center justify-between">
+                            <div class="flex-1">
+                                <div class="relative pt-1">
+                                    <div class="flex mb-2 items-center justify-between">
+                                        <div>
+                                            <span id="healthScore" class="text-xs font-semibold inline-block py-1 px-2 uppercase rounded-full text-green-600 bg-green-200">
+                                                Loading...
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <div class="overflow-hidden h-2 mb-4 text-xs flex rounded bg-gray-200">
+                                        <div id="healthScoreBar" style="width:0%" class="shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center bg-green-500"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mt-4">
+                            <h4 class="text-sm font-medium text-gray-900">Rekomendasi:</h4>
+                            <ul class="mt-2 divide-y divide-gray-200" id="recommendations">
+                                <li class="text-center py-4 text-gray-500">Loading...</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // Authentication check
+        const token = localStorage.getItem('token');
+        if (!token) {
+            window.location.href = '../index.html';
+        }
+
+        // Initialize date picker
+        const fp = flatpickr("#dateRange", {
+            mode: "range",
+            locale: "id",
+            dateFormat: "Y-m-d",
+            onChange: (selectedDates) => {
+                if (selectedDates.length === 2) {
+                    fetchReportData();
+                }
+            }
+        });
+
+        // Set initial date range
+        const today = new Date();
+        const firstDayOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+        fp.setDate([firstDayOfMonth, today]);
+
+        // Period select handler
+        document.getElementById('periodSelect').addEventListener('change', (e) => {
+            const period = e.target.value;
+            let startDate = new Date();
+            const endDate = new Date();
+
+            switch (period) {
+                case 'daily':
+                    startDate.setDate(startDate.getDate() - 7);
+                    break;
+                case 'weekly':
+                    startDate.setDate(startDate.getDate() - 28);
+                    break;
+                case 'monthly':
+                    startDate = new Date(today.getFullYear(), today.getMonth(), 1);
+                    break;
+                case 'yearly':
+                    startDate = new Date(today.getFullYear(), 0, 1);
+                    break;
+                case 'custom':
+                    return; // Let user select custom range
+            }
+
+            fp.setDate([startDate, endDate]);
+        });
+
+        // Charts
+        let trendChart, categoryChart;
+
+        // Fetch report data
+        const fetchReportData = async () => {
+            try {
+                const dateRange = document.getElementById('dateRange').value;
+                const [startDate, endDate] = dateRange.split(' to ');
+
+                const response = await fetch(`http://localhost:3000/api/transactions/statistics?startDate=${startDate}&endDate=${endDate}`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                const data = await response.json();
+                if (data.success) {
+                    updateReportDisplay(data.statistics);
+                }
+            } catch (error) {
+                console.error('Error fetching report data:', error);
+            }
+        };
+
+        // Update report display
+        const updateReportDisplay = (stats) => {
+            // Update summary cards
+            document.getElementById('totalIncome').textContent = `Rp ${stats.income.total.toLocaleString('id')}`;
+            document.getElementById('totalExpense').textContent = `Rp ${stats.expense.total.toLocaleString('id')}`;
+            document.getElementById('netIncome').textContent = `Rp ${(stats.income.total - stats.expense.total).toLocaleString('id')}`;
+            document.getElementById('avgDailyExpense').textContent = `Rp ${Math.round(stats.expense.average.daily).toLocaleString('id')}`;
+
+            // Update trend chart
+            updateTrendChart(stats.trends);
+
+            // Update category chart
+            updateCategoryChart(stats.categories);
+
+            // Update top expenses
+            updateTopExpenses(stats.topExpenses);
+
+            // Update budget performance
+            updateBudgetPerformance(stats.budgets);
+
+            // Update financial health score
+            updateHealthScore(stats.healthScore);
+        };
+
+        // Update trend chart
+        const updateTrendChart = (trends) => {
+            if (trendChart) trendChart.destroy();
+
+            const ctx = document.getElementById('trendChart').getContext('2d');
+            trendChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: trends.labels,
+                    datasets: [
+                        {
+                            label: 'Pemasukan',
+                            data: trends.income,
+                            borderColor: '#10B981',
+                            tension: 0.1
+                        },
+                        {
+                            label: 'Pengeluaran',
+                            data: trends.expense,
+                            borderColor: '#EF4444',
+                            tension: 0.1
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: value => `Rp ${value.toLocaleString('id')}`
+                            }
+                        }
+                    }
+                }
+            });
+        };
+
+        // Update category chart
+        const updateCategoryChart = (categories) => {
+            if (categoryChart) categoryChart.destroy();
+
+            const ctx = document.getElementById('categoryChart').getContext('2d');
+            categoryChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: categories.map(c => c.name),
+                    datasets: [{
+                        data: categories.map(c => c.total),
+                        backgroundColor: [
+                            '#4F46E5', '#7C3AED', '#EC4899', '#EF4444', '#F59E0B',
+                            '#10B981', '#3B82F6', '#6366F1', '#8B5CF6', '#D946EF'
+                        ]
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'right'
+                        }
+                    }
+                }
+            });
+        };
+
+        // Update top expenses
+        const updateTopExpenses = (expenses) => {
+            document.getElementById('topExpenses').innerHTML = expenses.map(expense => `
+                <li class="py-4">
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center">
+                            <div class="ml-3">
+                                <p class="text-sm font-medium text-gray-900">${expense.description}</p>
+                                <p class="text-sm text-gray-500">${expense.category}</p>
+                            </div>
+                        </div>
+                        <div class="text-sm text-red-600">
+                            Rp ${expense.amount.toLocaleString('id')}
+                        </div>
+                    </div>
+                </li>
+            `).join('') || '<li class="text-center py-4 text-gray-500">Tidak ada data</li>';
+        };
+
+        // Update budget performance
+        const updateBudgetPerformance = (budgets) => {
+            document.getElementById('budgetPerformance').innerHTML = budgets.map(budget => `
+                <li class="py-4">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm font-medium text-gray-900">${budget.name}</p>
+                            <p class="text-sm text-gray-500">${budget.category}</p>
+                        </div>
+                        <div class="text-right">
+                            <p class="text-sm font-medium ${budget.status === 'over' ? 'text-red-600' : 'text-green-600'}">
+                                ${Math.round(budget.progress)}%
+                            </p>
+                            <p class="text-xs text-gray-500">
+                                Rp ${budget.spent.toLocaleString('id')} / ${budget.total.toLocaleString('id')}
+                            </p>
+                        </div>
+                    </div>
+                    <div class="mt-2">
+                        <div class="overflow-hidden h-2 text-xs flex rounded bg-gray-200">
+                            <div style="width:${Math.min(budget.progress, 100)}%" 
+                                class="${budget.status === 'over' ? 'bg-red-500' : 'bg-green-500'} shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center">
+                            </div>
+                        </div>
+                    </div>
+                </li>
+            `).join('') || '<li class="text-center py-4 text-gray-500">Tidak ada budget aktif</li>';
+        };
+
+        // Update health score
+        const updateHealthScore = (healthScore) => {
+            const score = healthScore.score;
+            const scoreElement = document.getElementById('healthScore');
+            const scoreBar = document.getElementById('healthScoreBar');
+
+            scoreElement.textContent = `${score}/100`;
+            scoreBar.style.width = `${score}%`;
+
+            // Update color based on score
+            let colorClass;
+            if (score >= 80) colorClass = 'bg-green-500';
+            else if (score >= 60) colorClass = 'bg-yellow-500';
+            else colorClass = 'bg-red-500';
+
+            scoreBar.className = `shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center ${colorClass}`;
+
+            // Update recommendations
+            document.getElementById('recommendations').innerHTML = healthScore.recommendations.map(rec => `
+                <li class="py-3">
+                    <div class="flex space-x-3">
+                        <div class="flex-1 space-y-1">
+                            <p class="text-sm font-medium text-gray-900">${rec.title}</p>
+                            <p class="text-sm text-gray-500">${rec.description}</p>
+                        </div>
+                    </div>
+                </li>
+            `).join('');
+        };
+
+        // Export report
+        const exportReport = async () => {
+            try {
+                const dateRange = document.getElementById('dateRange').value;
+                const [startDate, endDate] = dateRange.split(' to ');
+
+                const response = await fetch(
+                    `http://localhost:3000/api/transactions/export?startDate=${startDate}&endDate=${endDate}`,
+                    {
+                        headers: {
+                            'Authorization': `Bearer ${token}`
+                        }
+                    }
+                );
+
+                if (response.ok) {
+                    const blob = await response.blob();
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `laporan-keuangan-${startDate}-${endDate}.xlsx`;
+                    document.body.appendChild(a);
+                    a.click();
+                    window.URL.revokeObjectURL(url);
+                    a.remove();
+                }
+            } catch (error) {
+                console.error('Error exporting report:', error);
+            }
+        };
+
+        // Initialize
+        fetchReportData();
+    </script>
+</body>
+</html>
