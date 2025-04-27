@@ -1,189 +1,172 @@
-# WhatsApp Financial Assistant
+# Financial Assistant
 
-Sistem pencatatan, pengelolaan, dan analisa keuangan pribadi berbasis WhatsApp Bot dan dashboard web.
+A WhatsApp-based financial assistant with web dashboard for personal finance management.
 
-## Fitur Utama
+## Minimal Hosting Requirements
 
-### WhatsApp Bot
-- Pencatatan transaksi (teks, voice, image/receipt OCR)
-- Edit, hapus, filter transaksi
-- Lihat riwayat transaksi (periode, sumber)
-- Atur & pantau budget
-- Analisa laporan keuangan (harian, bulanan, tahunan)
-- NLP tingkat lanjut (slang, typo, context, sentiment)
-- Voice-to-text, image-to-text (OCR)
+- RAM: 512MB minimum (200MB allocated to Node.js)
+- Storage: 1GB minimum
+- CPU: 1 core
+- Node.js: v14 or higher
+- MongoDB: v4.4 or higher
 
-### Dashboard User
-- Login dengan username + kode aktivasi
-- Dashboard interaktif
-- Riwayat transaksi (CRUD, filter)
-- Budget management
-- Laporan keuangan
-- Dark mode
+## Optimized Setup
 
-### Dashboard Admin
-- Manajemen user & aktivasi
-- Monitoring transaksi
-- Pengaturan sistem
-- Backup/restore database
-- Audit log
-
-## Teknologi
-
-- Backend: Node.js, Express, MongoDB
-- WhatsApp Bot: whatsapp-web.js
-- NLP: node-nlp
-- Frontend: HTML, Tailwind CSS, JavaScript
-- Security: JWT, bcrypt
-
-## Instalasi
-
-1. Clone repository:
+### Quick Start
 ```bash
-git clone https://github.com/yourusername/financial-assistant.git
-cd financial-assistant
+# Start the application with optimized settings
+./backend/src/scripts/start.sh
 ```
 
-2. Install dependencies:
+### Manual Setup
+
+1. Set environment variables:
 ```bash
-cd backend
-npm install
+export NODE_OPTIONS="--max-old-space-size=200 --gc-interval=100"
+export MAX_MEMORY="200M"
+export MAX_FILE_SIZE="1M"
+export MONGODB_POOL_SIZE="5"
 ```
 
-3. Setup environment variables:
-- Copy `.env.example` ke `.env`
-- Sesuaikan konfigurasi database dan JWT secret
-
-4. Jalankan server:
+2. Install production dependencies:
 ```bash
-npm start
+npm ci --production
 ```
 
-## Penggunaan WhatsApp Bot
+3. Start with PM2:
+```bash
+pm2 start ecosystem.config.js --env production
+```
 
-### Registrasi & Aktivasi
-1. Kirim pesan "Daftar" ke bot
-2. Admin akan membuatkan user dan kode aktivasi
-3. Aktivasi dengan format: "Aktivasi [username] [kode]"
+## Resource Management
 
-### Format Pesan
-- Catat pengeluaran: "catat pengeluaran [jumlah] untuk [kategori]"
-- Catat pemasukan: "catat pemasukan [jumlah] dari [kategori]"
-- Lihat transaksi: "lihat transaksi"
-- Lihat budget: "lihat budget"
-- Laporan: "laporan [harian/bulanan/tahunan]"
+### Memory Optimization
+- Node.js heap limited to 200MB
+- Automatic garbage collection
+- Memory usage monitoring
+- Cache size limits
+- File upload size restrictions
 
-### Fitur NLP
-Bot memahami berbagai variasi bahasa:
-- Formal: "catat pengeluaran 50000 untuk makan"
-- Informal: "keluar 50rb buat makan"
-- Slang: "beli makan 50k"
+### Storage Optimization
+- Automatic cleanup of old logs (7 days retention)
+- Image compression for uploads
+- Database archiving for old records
+- Temporary file cleanup
 
-## API Endpoints
-
-### Auth
-- POST /api/auth/register
-- POST /api/auth/login
-- POST /api/auth/admin/login
-
-### Transactions
-- GET /api/transactions
-- POST /api/transactions
-- PUT /api/transactions/:id
-- DELETE /api/transactions/:id
-
-### Budget
-- GET /api/budgets
-- POST /api/budgets
-- PUT /api/budgets/:id
-
-### Admin
-- GET /api/admin/users
-- PUT /api/admin/users/:id
-- POST /api/admin/backup
-- POST /api/admin/restore
-
-## Keamanan
-
-- Enkripsi password & kode aktivasi
+### Performance Tuning
+- Single process mode
+- Connection pooling
+- Response caching
 - Rate limiting
-- JWT authentication
-- Session management
-- Input validation
-- Error handling
-- Audit logging
+- Automatic optimization scheduling
 
-## Backup & Restore
+## Maintenance
 
-### Backup Manual
+### Automated Tasks
+- Daily optimization at 2 AM
+- Weekly database maintenance
+- Log rotation
+- Cache cleanup
+
+### Manual Optimization
 ```bash
-curl -X POST http://localhost:3000/api/admin/backup \
-  -H "Authorization: Bearer YOUR_ADMIN_TOKEN"
-```
-
-### Restore dari Backup
-```bash
-curl -X POST http://localhost:3000/api/admin/restore \
-  -H "Authorization: Bearer YOUR_ADMIN_TOKEN" \
-  -d '{"timestamp": "BACKUP_TIMESTAMP"}'
+# Run optimization script
+node backend/src/scripts/optimize.js
 ```
 
 ## Monitoring
 
-### Health Check
+### Resource Usage
 ```bash
-curl http://localhost:3000/health
+# View process metrics
+pm2 monit
+
+# View logs
+pm2 logs financial-assistant
 ```
 
-### Statistik Admin
+### Health Checks
+- Memory usage alerts
+- CPU usage monitoring
+- Storage space checks
+- Database connection monitoring
+
+## Features with Resource Considerations
+
+1. OCR Processing
+   - Limited to 2 concurrent processes
+   - Max file size: 1MB
+   - Automatic cleanup of processed files
+
+2. WhatsApp Integration
+   - Single instance mode
+   - Message queue limit: 100
+   - Daily message limit: 1000
+
+3. Database Operations
+   - Connection pool: 5 connections
+   - Idle timeout: 30 seconds
+   - Index optimization
+   - Automatic archiving
+
+4. Caching
+   - Maximum items: 1000
+   - TTL: 1 hour
+   - Three-tier cache system
+   - Automatic pruning
+
+5. API Limits
+   - Rate limit: 100 requests per 15 minutes
+   - Response timeout: 10 seconds
+   - Maximum payload size: 1MB
+
+## Troubleshooting
+
+### Common Issues
+
+1. High Memory Usage
 ```bash
-curl http://localhost:3000/api/admin/statistics \
-  -H "Authorization: Bearer YOUR_ADMIN_TOKEN"
+# Run manual optimization
+node backend/src/scripts/optimize.js
 ```
 
-## Pengembangan
-
-### Struktur Proyek
-```
-financial-assistant/
-├── backend/
-│   ├── src/
-│   │   ├── config/
-│   │   ├── models/
-│   │   ├── routes/
-│   │   ├── handlers/
-│   │   └── utils/
-│   └── package.json
-├── frontend/
-│   ├── user-dashboard/
-│   └── admin-dashboard/
-└── README.md
-```
-
-### Testing
+2. Slow Response Times
 ```bash
-npm test
+# Check current connections
+pm2 describe financial-assistant
 ```
 
-### Linting
+3. Storage Issues
 ```bash
-npm run lint
+# Clean up old files
+find ./logs -type f -mtime +7 -delete
 ```
 
-## Kontribusi
+### Performance Tips
 
-1. Fork repository
-2. Buat branch fitur (`git checkout -b feature/AmazingFeature`)
-3. Commit perubahan (`git commit -m 'Add some AmazingFeature'`)
-4. Push ke branch (`git push origin feature/AmazingFeature`)
-5. Buat Pull Request
+1. Regular Maintenance
+   - Run optimization script weekly
+   - Monitor log sizes
+   - Check database indexes
 
-## Lisensi
+2. Resource Management
+   - Keep file uploads small
+   - Use pagination for large datasets
+   - Implement client-side caching
 
-Distributed under the MIT License. See `LICENSE` for more information.
+3. Error Prevention
+   - Monitor error rates
+   - Check resource usage
+   - Review application logs
 
-## Kontak
+## Support
 
-Your Name - [@yourusername](https://twitter.com/yourusername)
+For issues and support, please:
+1. Check the logs in `./logs/`
+2. Review resource usage with `pm2 monit`
+3. Run optimization script if needed
+4. Contact support if issues persist
 
-Project Link: [https://github.com/yourusername/financial-assistant](https://github.com/yourusername/financial-assistant)
+## License
+
+[Your License Here]
