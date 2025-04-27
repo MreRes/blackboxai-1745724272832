@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Budget - Asisten Keuangan</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/id.js"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .progress-ring {
+            transform: rotate(-90deg);
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Navigation (same as other pages) -->
+    <nav class="bg-white shadow-lg">
+        <!-- ... (copy navigation code from dashboard.html) ... -->
+    </nav>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+        <!-- Header -->
+        <div class="px-4 sm:px-0 flex justify-between items-center">
+            <h2 class="text-2xl font-semibold text-gray-900">Budget</h2>
+            <button onclick="openBudgetModal()" class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                <i class="fas fa-plus -ml-1 mr-2"></i>
+                Tambah Budget
+            </button>
+        </div>
+
+        <!-- Budget Overview -->
+        <div class="mt-6 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
+            <!-- Total Budget -->
+            <div class="bg-white overflow-hidden shadow rounded-lg">
+                <div class="p-5">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0">
+                            <i class="fas fa-wallet text-2xl text-indigo-600"></i>
+                        </div>
+                        <div class="ml-5 w-0 flex-1">
+                            <dl>
+                                <dt class="text-sm font-medium text-gray-500 truncate">
+                                    Total Budget
+                                </dt>
+                                <dd class="text-lg font-semibold text-gray-900" id="totalBudget">
+                                    Loading...
+                                </dd>
+                            </dl>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Used Budget -->
+            <div class="bg-white overflow-hidden shadow rounded-lg">
+                <div class="p-5">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0">
+                            <i class="fas fa-chart-pie text-2xl text-green-600"></i>
+                        </div>
+                        <div class="ml-5 w-0 flex-1">
+                            <dl>
+                                <dt class="text-sm font-medium text-gray-500 truncate">
+                                    Terpakai
+                                </dt>
+                                <dd class="text-lg font-semibold text-gray-900" id="usedBudget">
+                                    Loading...
+                                </dd>
+                            </dl>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Remaining Budget -->
+            <div class="bg-white overflow-hidden shadow rounded-lg">
+                <div class="p-5">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0">
+                            <i class="fas fa-piggy-bank text-2xl text-blue-600"></i>
+                        </div>
+                        <div class="ml-5 w-0 flex-1">
+                            <dl>
+                                <dt class="text-sm font-medium text-gray-500 truncate">
+                                    Sisa
+                                </dt>
+                                <dd class="text-lg font-semibold text-gray-900" id="remainingBudget">
+                                    Loading...
+                                </dd>
+                            </dl>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Active Budgets -->
+        <div class="mt-8">
+            <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4">Budget Aktif</h3>
+            <div class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3" id="activeBudgets">
+                <!-- Budget cards will be inserted here -->
+                <div class="text-center text-gray-500">Loading...</div>
+            </div>
+        </div>
+
+        <!-- Budget History -->
+        <div class="mt-8">
+            <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4">Riwayat Budget</h3>
+            <div class="bg-white shadow overflow-hidden sm:rounded-md">
+                <ul class="divide-y divide-gray-200" id="budgetHistory">
+                    <!-- Budget history items will be inserted here -->
+                    <li class="text-center text-gray-500 py-4">Loading...</li>
+                </ul>
+            </div>
+        </div>
+    </main>
+
+    <!-- Budget Modal -->
+    <div id="budgetModal" class="fixed z-10 inset-0 overflow-y-auto hidden" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+        <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+            <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true"></div>
+            <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+            <div class="inline-block align-bottom bg-white rounded-lg px-4 pt-5 pb-4 text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full sm:p-6">
+                <form id="budgetForm">
+                    <div>
+                        <h3 class="text-lg leading-6 font-medium text-gray-900" id="modal-title">
+                            Tambah Budget
+                        </h3>
+                        <div class="mt-4 space-y-4">
+                            <!-- Name -->
+                            <div>
+                                <label for="name" class="block text-sm font-medium text-gray-700">Nama Budget</label>
+                                <input type="text" name="name" id="name" required class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                            </div>
+
+                            <!-- Type -->
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700">Tipe</label>
+                                <div class="mt-1">
+                                    <select name="type" id="type" required class="block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                                        <option value="expense">Pengeluaran</option>
+                                        <option value="savings">Tabungan</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <!-- Amount -->
+                            <div>
+                                <label for="amount" class="block text-sm font-medium text-gray-700">Jumlah Total</label>
+                                <div class="mt-1 relative rounded-md shadow-sm">
+                                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                        <span class="text-gray-500 sm:text-sm">Rp</span>
+                                    </div>
+                                    <input type="number" name="amount" id="amount" required class="focus:ring-indigo-500 focus:border-indigo-500 block w-full pl-12 pr-12 sm:text-sm border-gray-300 rounded-md" placeholder="0">
+                                </div>
+                            </div>
+
+                            <!-- Period -->
+                            <div>
+                                <label for="period" class="block text-sm font-medium text-gray-700">Periode</label>
+                                <select name="period" id="period" required class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                                    <option value="monthly">Bulanan</option>
+                                    <option value="weekly">Mingguan</option>
+                                    <option value="yearly">Tahunan</option>
+                                    <option value="custom">Kustom</option>
+                                </select>
+                            </div>
+
+                            <!-- Date Range -->
+                            <div>
+                                <label for="dateRange" class="block text-sm font-medium text-gray-700">Rentang Waktu</label>
+                                <input type="text" name="dateRange" id="dateRange" required class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                            </div>
+
+                            <!-- Categories -->
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700">Kategori</label>
+                                <div id="categoryContainer" class="mt-2 space-y-2">
+                                    <!-- Category inputs will be added here -->
+                                </div>
+                                <button type="button" onclick="addCategoryField()" class="mt-2 inline-flex items-center px-3 py-1 border border-transparent text-sm leading-4 font-medium rounded-md text-indigo-700 bg-indigo-100 hover:bg-indigo-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                                    <i class="fas fa-plus mr-2"></i>
+                                    Tambah Kategori
+                                </button>
+                            </div>
+
+                            <!-- Notifications -->
+                            <div>
+                                <div class="flex items-start">
+                                    <div class="flex items-center h-5">
+                                        <input id="notifications" name="notifications" type="checkbox" class="focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300 rounded">
+                                    </div>
+                                    <div class="ml-3 text-sm">
+                                        <label for="notifications" class="font-medium text-gray-700">Aktifkan Notifikasi</label>
+                                        <p class="text-gray-500">Dapatkan notifikasi saat budget hampir habis</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mt-5 sm:mt-6 sm:grid sm:grid-cols-2 sm:gap-3 sm:grid-flow-row-dense">
+                        <button type="submit" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-indigo-600 text-base font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:col-start-2 sm:text-sm">
+                            Simpan
+                        </button>
+                        <button type="button" onclick="closeBudgetModal()" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:col-start-1 sm:text-sm">
+                            Batal
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Authentication check
+        const token = localStorage.getItem('token');
+        if (!token) {
+            window.location.href = '../index.html';
+        }
+
+        // Initialize date picker
+        flatpickr("#dateRange", {
+            mode: "range",
+            locale: "id",
+            dateFormat: "Y-m-d"
+        });
+
+        // Global variables
+        let categories = [];
+        let activeBudgets = [];
+
+        // Fetch categories
+        const fetchCategories = async () => {
+            try {
+                const response = await fetch('http://localhost:3000/api/transactions/categories', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                const data = await response.json();
+                if (data.success) {
+                    categories = data.categories;
+                }
+            } catch (error) {
+                console.error('Error fetching categories:', error);
+            }
+        };
+
+        // Add category field
+        const addCategoryField = () => {
+            const container = document.getElementById('categoryContainer');
+            const index = container.children.length;
+            
+            const categoryDiv = document.createElement('div');
+            categoryDiv.className = 'flex space-x-2';
+            categoryDiv.innerHTML = `
+                <select name="categories[${index}][name]" class="flex-1 border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                    ${categories.map(cat => `<option value="${cat}">${cat}</option>`).join('')}
+                </select>
+                <input type="number" name="categories[${index}][amount]" placeholder="Jumlah" class="flex-1 border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                <button type="button" onclick="this.parentElement.remove()" class="inline-flex items-center p-2 border border-transparent rounded-md text-red-600 hover:bg-red-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500">
+                    <i class="fas fa-trash"></i>
+                </button>
+            `;
+            
+            container.appendChild(categoryDiv);
+        };
+
+        // Fetch budgets
+        const fetchBudgets = async () => {
+            try {
+                const response = await fetch('http://localhost:3000/api/budgets', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                const data = await response.json();
+                if (data.success) {
+                    activeBudgets = data.budgets.filter(b => b.status === 'active');
+                    updateBudgetDisplay(data.budgets);
+                }
+            } catch (error) {
+                console.error('Error fetching budgets:', error);
+            }
+        };
+
+        // Update budget display
+        const updateBudgetDisplay = (budgets) => {
+            // Update overview
+            const totalBudget = budgets.reduce((sum, b) => sum + b.amount, 0);
+            const totalUsed = budgets.reduce((sum, b) => sum + b.statistics.totalSpent, 0);
+            const remaining = totalBudget - totalUsed;
+
+            document.getElementById('totalBudget').textContent = `Rp ${totalBudget.toLocaleString('id')}`;
+            document.getElementById('usedBudget').textContent = `Rp ${totalUsed.toLocaleString('id')}`;
+            document.getElementById('remainingBudget').textContent = `Rp ${remaining.toLocaleString('id')}`;
+
+            // Update active budgets
+            const activeBudgetsContainer = document.getElementById('activeBudgets');
+            activeBudgetsContainer.innerHTML = activeBudgets.map(budget => `
+                <div class="bg-white overflow-hidden shadow rounded-lg">
+                    <div class="p-5">
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <h4 class="text-lg font-medium text-gray-900">${budget.name}</h4>
+                                <p class="text-sm text-gray-500">
+                                    ${new Date(budget.startDate).toLocaleDateString('id-ID')} - 
+                                    ${new Date(budget.endDate).toLocaleDateString('id-ID')}
+                                </p>
+                            </div>
+                            <div class="flex space-x-2">
+                                <button onclick="editBudget('${budget._id}')" class="text-indigo-600 hover:text-indigo-900">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button onclick="deleteBudget('${budget._id}')" class="text-red-600 hover:text-red-900">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="mt-4">
+                            <div class="relative pt-1">
+                                <div class="flex mb-2 items-center justify-between">
+                                    <div>
+                                        <span class="text-xs font-semibold inline-block py-1 px-2 uppercase rounded-full ${
+                                            budget.statistics.isOverBudget ? 'text-red-600 bg-red-200' : 'text-green-600 bg-green-200'
+                                        }">
+                                            ${Math.round(budget.statistics.progress)}%
+                                        </span>
+                                    </div>
+                                    <div class="text-right">
+                                        <span class="text-xs font-semibold inline-block text-gray-600">
+                                            Rp ${budget.statistics.remaining.toLocaleString('id')} tersisa
+                                        </span>
+                                    </div>
+                                </div>
+                                <div class="overflow-hidden h-2 mb-4 text-xs flex rounded bg-gray-200">
+                                    <div style="width:${Math.min(budget.statistics.progress, 100)}%" class="${
+                                        budget.statistics.isOverBudget ? 'bg-red-500' : 'bg-green-500'
+                                    } shadow-none flex flex-col text-center whitespace-nowrap text-white justify-center"></div>
+                                </div>
+                            </div>
+                            <div class="mt-4 space-y-2">
+                                ${budget.categories.map(cat => `
+                                    <div class="flex justify-between text-sm">
+                                        <span class="text-gray-500">${cat.name}</span>
+                                        <span class="font-medium">Rp ${cat.spent.toLocaleString('id')} / ${cat.amount.toLocaleString('id')}</span>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `).join('') || '<div class="text-center text-gray-500">Tidak ada budget aktif</div>';
+
+            // Update budget history
+            const budgetHistory = budgets.filter(b => b.status !== 'active');
+            document.getElementById('budgetHistory').innerHTML = budgetHistory.map(budget => `
+                <li>
+                    <div class="px-4 py-4 sm:px-6">
+                        <div class="flex items-center justify-between">
+                            <div class="text-sm font-medium text-indigo-600 truncate">
+                                ${budget.name}
+                            </div>
+                            <div class="ml-2 flex-shrink-0 flex">
+                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                                    budget.status === 'completed' ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'
+                                }">
+                                    ${budget.status === 'completed' ? 'Selesai' : 'Dibatalkan'}
+                                </span>
+                            </div>
+                        </div>
+                        <div class="mt-2 sm:flex sm:justify-between">
+                            <div class="sm:flex">
+                                <p class="flex items-center text-sm text-gray-500">
+                                    <i class="fas fa-calendar flex-shrink-0 mr-1.5 text-gray-400"></i>
+                                    ${new Date(budget.startDate).toLocaleDateString('id-ID')} - 
+                                    ${new Date(budget.endDate).toLocaleDateString('id-ID')}
+                                </p>
+                            </div>
+                            <div class="mt-2 flex items-center text-sm text-gray-500 sm:mt-0">
+                                <i class="fas fa-money-bill-wave flex-shrink-0 mr-1.5 text-gray-400"></i>
+                                <p>
+                                    Rp ${budget.amount.toLocaleString('id')}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </li>
+            `).join('') || '<li class="text-center text-gray-500 py-4">Tidak ada riwayat budget</li>';
+        };
+
+        // Modal functions
+        const openBudgetModal = () => {
+            document.getElementById('budgetModal').classList.remove('hidden');
+            document.getElementById('budgetForm').reset();
+            document.getElementById('categoryContainer').innerHTML = '';
+            addCategoryField();
+        };
+
+        const closeBudgetModal = () => {
+            document.getElementById('budgetModal').classList.add('hidden');
+        };
+
+        // Handle form submission
+        document.getElementById('budgetForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const formData = new FormData(e.target);
+            const dateRange = formData.get('dateRange').split(' to ');
+            
+            const budget = {
+                name: formData.get('name'),
+                type: formData.get('type'),
+                amount: parseFloat(formData.get('amount')),
+                period: formData.get('period'),
+                startDate: dateRange[0],
+                endDate: dateRange[1],
+                categories: Array.from(formData.entries())
+                    .filter(([key]) => key.startsWith('categories'))
+                    .reduce((acc, [key, value]) => {
+                        const [, index, field] = key.match(/categories\[(\d+)\]\[(\w+)\]/);
+                        if (!acc[index]) acc[index] = {};
+                        acc[index][field] = field === 'amount' ? parseFloat(value) : value;
+                        return acc;
+                    }, []),
+                notifications: {
+                    enabled: formData.get('notifications') === 'on'
+                }
+            };
+
+            try {
+                const response = await fetch('http://localhost:3000/api/budgets', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify(budget)
+                });
+
+                const data = await response.json();
+                if (data.success) {
+                    closeBudgetModal();
+                    fetchBudgets();
+                }
+            } catch (error) {
+                console.error('Error creating budget:', error);
+            }
+        });
+
+        // Delete budget
+        const deleteBudget = async (id) => {
+            if (!confirm('Apakah Anda yakin ingin menghapus budget ini?')) return;
+
+            try {
+                const response = await fetch(`http://localhost:3000/api/budgets/${id}`, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ status: 'cancelled' })
+                });
+
+                const data = await response.json();
+                if (data.success) {
+                    fetchBudgets();
+                }
+            } catch (error) {
+                console.error('Error deleting budget:', error);
+            }
+        };
+
+        // Initialize
+        fetchCategories().then(() => {
+            fetchBudgets();
+        });
+    </script>
+</body>
+</html>
