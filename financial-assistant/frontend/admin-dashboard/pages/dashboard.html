@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - Asisten Keuangan</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+    </style>
+</head>
+<body class="bg-gray-900">
+    <!-- Navigation -->
+    <nav class="bg-gray-800">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex items-center">
+                    <div class="flex-shrink-0">
+                        <h1 class="text-xl font-bold text-white">Admin Dashboard</h1>
+                    </div>
+                    <div class="hidden md:block">
+                        <div class="ml-10 flex items-baseline space-x-4">
+                            <a href="dashboard.html" class="bg-gray-900 text-white px-3 py-2 rounded-md text-sm font-medium">Dashboard</a>
+                            <a href="users.html" class="text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium">Users</a>
+                            <a href="transactions.html" class="text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium">Transactions</a>
+                            <a href="reports.html" class="text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium">Reports</a>
+                            <a href="settings.html" class="text-gray-300 hover:bg-gray-700 hover:text-white px-3 py-2 rounded-md text-sm font-medium">Settings</a>
+                        </div>
+                    </div>
+                </div>
+                <div class="hidden md:block">
+                    <div class="ml-4 flex items-center md:ml-6">
+                        <!-- Profile dropdown -->
+                        <div class="ml-3 relative">
+                            <div>
+                                <button id="userMenuButton" class="max-w-xs bg-gray-800 rounded-full flex items-center text-sm focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-800 focus:ring-white">
+                                    <span class="sr-only">Open user menu</span>
+                                    <i class="fas fa-user-circle text-2xl text-white"></i>
+                                </button>
+                            </div>
+                            <div id="userMenu" class="hidden origin-top-right absolute right-0 mt-2 w-48 rounded-md shadow-lg py-1 bg-white ring-1 ring-black ring-opacity-5">
+                                <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" id="logoutButton">Logout</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+        <!-- Page Header -->
+        <div class="px-4 sm:px-0 mb-6">
+            <h2 class="text-2xl font-semibold text-white">System Overview</h2>
+            <p class="mt-1 text-sm text-gray-400" id="lastUpdate">Last updated: Loading...</p>
+        </div>
+
+        <!-- Stats Grid -->
+        <div class="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
+            <!-- Total Users -->
+            <div class="bg-gray-800 overflow-hidden shadow rounded-lg">
+                <div class="p-5">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0">
+                            <i class="fas fa-users text-2xl text-blue-500"></i>
+                        </div>
+                        <div class="ml-5 w-0 flex-1">
+                            <dl>
+                                <dt class="text-sm font-medium text-gray-400 truncate">Total Users</dt>
+                                <dd class="text-lg font-semibold text-white" id="totalUsers">Loading...</dd>
+                            </dl>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Active Users -->
+            <div class="bg-gray-800 overflow-hidden shadow rounded-lg">
+                <div class="p-5">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0">
+                            <i class="fas fa-user-check text-2xl text-green-500"></i>
+                        </div>
+                        <div class="ml-5 w-0 flex-1">
+                            <dl>
+                                <dt class="text-sm font-medium text-gray-400 truncate">Active Users</dt>
+                                <dd class="text-lg font-semibold text-white" id="activeUsers">Loading...</dd>
+                            </dl>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Total Transactions -->
+            <div class="bg-gray-800 overflow-hidden shadow rounded-lg">
+                <div class="p-5">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0">
+                            <i class="fas fa-exchange-alt text-2xl text-purple-500"></i>
+                        </div>
+                        <div class="ml-5 w-0 flex-1">
+                            <dl>
+                                <dt class="text-sm font-medium text-gray-400 truncate">Total Transactions</dt>
+                                <dd class="text-lg font-semibold text-white" id="totalTransactions">Loading...</dd>
+                            </dl>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- System Health -->
+            <div class="bg-gray-800 overflow-hidden shadow rounded-lg">
+                <div class="p-5">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0">
+                            <i class="fas fa-heartbeat text-2xl text-red-500"></i>
+                        </div>
+                        <div class="ml-5 w-0 flex-1">
+                            <dl>
+                                <dt class="text-sm font-medium text-gray-400 truncate">System Health</dt>
+                                <dd class="text-lg font-semibold text-white" id="systemHealth">Loading...</dd>
+                            </dl>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Charts Section -->
+        <div class="mt-8 grid grid-cols-1 gap-5 lg:grid-cols-2">
+            <!-- User Activity -->
+            <div class="bg-gray-800 overflow-hidden shadow rounded-lg">
+                <div class="p-5">
+                    <h3 class="text-lg font-medium text-white mb-4">User Activity</h3>
+                    <canvas id="userActivityChart" height="300"></canvas>
+                </div>
+            </div>
+
+            <!-- Transaction Volume -->
+            <div class="bg-gray-800 overflow-hidden shadow rounded-lg">
+                <div class="p-5">
+                    <h3 class="text-lg font-medium text-white mb-4">Transaction Volume</h3>
+                    <canvas id="transactionVolumeChart" height="300"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Activity & System Status -->
+        <div class="mt-8 grid grid-cols-1 gap-5 lg:grid-cols-2">
+            <!-- Recent Activity -->
+            <div class="bg-gray-800 overflow-hidden shadow rounded-lg">
+                <div class="p-5">
+                    <h3 class="text-lg font-medium text-white mb-4">Recent Activity</h3>
+                    <div class="flow-root">
+                        <ul class="divide-y divide-gray-700" id="recentActivity">
+                            <li class="py-3">
+                                <div class="flex items-center space-x-4">
+                                    <div class="flex-1 min-w-0">
+                                        <p class="text-sm text-gray-400">Loading activities...</p>
+                                    </div>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <!-- System Status -->
+            <div class="bg-gray-800 overflow-hidden shadow rounded-lg">
+                <div class="p-5">
+                    <h3 class="text-lg font-medium text-white mb-4">System Status</h3>
+                    <dl class="space-y-4">
+                        <!-- Database Status -->
+                        <div class="flex items-center justify-between">
+                            <dt class="text-sm font-medium text-gray-400">Database Connection</dt>
+                            <dd id="dbStatus" class="text-sm font-medium">
+                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-700 text-gray-400">
+                                    Loading...
+                                </span>
+                            </dd>
+                        </div>
+
+                        <!-- WhatsApp Status -->
+                        <div class="flex items-center justify-between">
+                            <dt class="text-sm font-medium text-gray-400">WhatsApp Connection</dt>
+                            <dd id="waStatus" class="text-sm font-medium">
+                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-700 text-gray-400">
+                                    Loading...
+                                </span>
+                            </dd>
+                        </div>
+
+                        <!-- API Health -->
+                        <div class="flex items-center justify-between">
+                            <dt class="text-sm font-medium text-gray-400">API Health</dt>
+                            <dd id="apiStatus" class="text-sm font-medium">
+                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-700 text-gray-400">
+                                    Loading...
+                                </span>
+                            </dd>
+                        </div>
+
+                        <!-- Memory Usage -->
+                        <div>
+                            <dt class="text-sm font-medium text-gray-400">Memory Usage</dt>
+                            <dd class="mt-1">
+                                <div class="bg-gray-700 rounded-full overflow-hidden">
+                                    <div id="memoryUsage" class="h-2 bg-blue-500" style="width: 0%"></div>
+                                </div>
+                                <p class="mt-1 text-sm text-gray-400" id="memoryUsageText">Loading...</p>
+                            </dd>
+                        </div>
+                    </dl>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // Authentication check
+        const adminToken = localStorage.getItem('adminToken');
+        if (!adminToken) {
+            window.location.href = '../index.html';
+        }
+
+        // Toggle user menu
+        document.getElementById('userMenuButton').addEventListener('click', () => {
+            document.getElementById('userMenu').classList.toggle('hidden');
+        });
+
+        // Logout handler
+        document.getElementById('logoutButton').addEventListener('click', (e) => {
+            e.preventDefault();
+            localStorage.removeItem('adminToken');
+            localStorage.removeItem('adminUser');
+            window.location.href = '../index.html';
+        });
+
+        // Charts
+        let userActivityChart, transactionVolumeChart;
+
+        // Fetch dashboard data
+        const fetchDashboardData = async () => {
+            try {
+                const response = await fetch('http://localhost:3000/api/admin/statistics', {
+                    headers: {
+                        'Authorization': `Bearer ${adminToken}`
+                    }
+                });
+
+                const data = await response.json();
+                if (data.success) {
+                    updateDashboard(data.statistics);
+                }
+            } catch (error) {
+                console.error('Error fetching dashboard data:', error);
+            }
+        };
+
+        // Update dashboard
+        const updateDashboard = (stats) => {
+            // Update stats
+            document.getElementById('totalUsers').textContent = stats.users.total;
+            document.getElementById('activeUsers').textContent = stats.users.active;
+            document.getElementById('totalTransactions').textContent = stats.transactions.total;
+            document.getElementById('systemHealth').textContent = `${stats.system.health}%`;
+            document.getElementById('lastUpdate').textContent = `Last updated: ${new Date().toLocaleString('id-ID')}`;
+
+            // Update user activity chart
+            updateUserActivityChart(stats.userActivity);
+
+            // Update transaction volume chart
+            updateTransactionVolumeChart(stats.transactionVolume);
+
+            // Update recent activity
+            updateRecentActivity(stats.recentActivity);
+
+            // Update system status
+            updateSystemStatus(stats.system);
+        };
+
+        // Update user activity chart
+        const updateUserActivityChart = (data) => {
+            if (userActivityChart) userActivityChart.destroy();
+
+            const ctx = document.getElementById('userActivityChart').getContext('2d');
+            userActivityChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: data.labels,
+                    datasets: [{
+                        label: 'Active Users',
+                        data: data.values,
+                        borderColor: '#3B82F6',
+                        tension: 0.1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: {
+                                color: 'rgba(255, 255, 255, 0.1)'
+                            },
+                            ticks: {
+                                color: '#9CA3AF'
+                            }
+                        },
+                        x: {
+                            grid: {
+                                color: 'rgba(255, 255, 255, 0.1)'
+                            },
+                            ticks: {
+                                color: '#9CA3AF'
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            labels: {
+                                color: '#9CA3AF'
+                            }
+                        }
+                    }
+                }
+            });
+        };
+
+        // Update transaction volume chart
+        const updateTransactionVolumeChart = (data) => {
+            if (transactionVolumeChart) transactionVolumeChart.destroy();
+
+            const ctx = document.getElementById('transactionVolumeChart').getContext('2d');
+            transactionVolumeChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: data.labels,
+                    datasets: [{
+                        label: 'Transaction Volume',
+                        data: data.values,
+                        backgroundColor: '#8B5CF6'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: {
+                                color: 'rgba(255, 255, 255, 0.1)'
+                            },
+                            ticks: {
+                                color: '#9CA3AF'
+                            }
+                        },
+                        x: {
+                            grid: {
+                                color: 'rgba(255, 255, 255, 0.1)'
+                            },
+                            ticks: {
+                                color: '#9CA3AF'
+                            }
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            labels: {
+                                color: '#9CA3AF'
+                            }
+                        }
+                    }
+                }
+            });
+        };
+
+        // Update recent activity
+        const updateRecentActivity = (activities) => {
+            document.getElementById('recentActivity').innerHTML = activities.map(activity => `
+                <li class="py-3">
+                    <div class="flex items-center space-x-4">
+                        <div class="flex-1 min-w-0">
+                            <p class="text-sm font-medium text-white">${activity.action}</p>
+                            <p class="text-sm text-gray-400">${activity.details}</p>
+                        </div>
+                        <div class="text-sm text-gray-400">
+                            ${new Date(activity.timestamp).toLocaleTimeString('id-ID')}
+                        </div>
+                    </div>
+                </li>
+            `).join('');
+        };
+
+        // Update system status
+        const updateSystemStatus = (system) => {
+            // Database status
+            const dbStatus = document.getElementById('dbStatus');
+            dbStatus.innerHTML = `
+                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                    system.database === 'connected' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                }">
+                    ${system.database}
+                </span>
+            `;
+
+            // WhatsApp status
+            const waStatus = document.getElementById('waStatus');
+            waStatus.innerHTML = `
+                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                    system.whatsapp === 'connected' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                }">
+                    ${system.whatsapp}
+                </span>
+            `;
+
+            // API status
+            const apiStatus = document.getElementById('apiStatus');
+            apiStatus.innerHTML = `
+                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                    system.api === 'healthy' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                }">
+                    ${system.api}
+                </span>
+            `;
+
+            // Memory usage
+            const memoryUsage = document.getElementById('memoryUsage');
+            const memoryUsageText = document.getElementById('memoryUsageText');
+            memoryUsage.style.width = `${system.memoryUsage}%`;
+            memoryUsageText.textContent = `${system.memoryUsage}% used`;
+        };
+
+        // Initialize
+        fetchDashboardData();
+
+        // Refresh data every minute
+        setInterval(fetchDashboardData, 60000);
+    </script>
+</body>
+</html>
