@@ -130,8 +130,8 @@
         }
     },
     "whatsapp": {
-        "welcome": "Selamat datang di Asisten Keuangan! Ketik 'bantuan' untuk melihat daftar perintah.",
-        "help": "Daftar perintah yang tersedia:\n- catat pengeluaran [jumlah] untuk [kategori]\n- catat pemasukan [jumlah] dari [kategori]\n- lihat transaksi\n- lihat budget\n- laporan [harian/bulanan/tahunan]",
+        "welcome": "Selamat datang di Asisten Keuangan! 🎉\n\n✨ Fitur Baru: Sekarang Anda bisa mencatat transaksi dengan mengirim foto struk belanja!\n\nKetik 'bantuan' untuk melihat panduan lengkap penggunaan.",
+        "help": "Daftar perintah yang tersedia:\n\n📝 Transaksi:\n- catat pengeluaran [jumlah] untuk [kategori]\n- catat pemasukan [jumlah] dari [kategori]\n- p50k makanan (shortcut untuk pengeluaran)\n- m100k gaji (shortcut untuk pemasukan)\n\n📷 Transaksi dengan Struk:\n- Kirim foto struk untuk mencatat pengeluaran otomatis\n- Kirim foto struk dengan pesan 'catat pengeluaran [jumlah] untuk [kategori]'\n- Kirim foto struk dengan pesan 'catat pengeluaran [kategori1] dan [kategori2]' untuk multiple transaksi\n\n📊 Laporan:\n- lihat transaksi\n- lihat budget\n- laporan [harian/mingguan/bulanan/tahunan]\n\n✏️ Edit Transaksi:\n- edit transaksi terakhir\n- hapus transaksi terakhir",
         "registration": {
             "start": "Untuk mendaftar, silakan hubungi admin untuk mendapatkan kode aktivasi.",
             "success": "Pendaftaran berhasil! Selamat menggunakan layanan kami.",
