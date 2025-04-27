@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Settings - Admin Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+    </style>
+</head>
+<body class="bg-gray-900">
+    <!-- Navigation (same as other admin pages) -->
+    <nav class="bg-gray-800">
+        <!-- ... (copy navigation code from dashboard.html) ... -->
+    </nav>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+        <!-- Page Header -->
+        <div class="px-4 sm:px-0 mb-6">
+            <h2 class="text-2xl font-semibold text-white">System Settings</h2>
+            <p class="mt-1 text-sm text-gray-400">Configure system settings and manage WhatsApp connection</p>
+        </div>
+
+        <!-- Settings Grid -->
+        <div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
+            <!-- WhatsApp Connection -->
+            <div class="bg-gray-800 shadow rounded-lg p-6">
+                <h3 class="text-lg font-medium text-white mb-4">WhatsApp Connection</h3>
+                <div class="space-y-4">
+                    <!-- Connection Status -->
+                    <div>
+                        <div class="flex items-center justify-between">
+                            <span class="text-sm text-gray-400">Connection Status</span>
+                            <span id="waStatus" class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-700 text-gray-400">
+                                Checking...
+                            </span>
+                        </div>
+                    </div>
+
+                    <!-- QR Code -->
+                    <div id="qrCodeSection" class="hidden">
+                        <p class="text-sm text-gray-400 mb-2">Scan this QR code with WhatsApp</p>
+                        <div id="qrCode" class="bg-white p-4 rounded-lg inline-block">
+                            <!-- QR code will be displayed here -->
+                        </div>
+                    </div>
+
+                    <!-- Connected Info -->
+                    <div id="connectedInfo" class="hidden">
+                        <div class="bg-gray-700 rounded-lg p-4">
+                            <div class="flex items-center">
+                                <i class="fas fa-phone text-green-500 mr-2"></i>
+                                <span class="text-sm text-white" id="connectedNumber">+62...</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Actions -->
+                    <div class="flex space-x-3">
+                        <button onclick="refreshConnection()" class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                            <i class="fas fa-sync-alt mr-2"></i>
+                            Refresh
+                        </button>
+                        <button onclick="logoutWhatsApp()" class="inline-flex items-center px-4 py-2 border border-gray-700 rounded-md shadow-sm text-sm font-medium text-gray-400 bg-gray-800 hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                            <i class="fas fa-sign-out-alt mr-2"></i>
+                            Logout
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Backup & Restore -->
+            <div class="bg-gray-800 shadow rounded-lg p-6">
+                <h3 class="text-lg font-medium text-white mb-4">Backup & Restore</h3>
+                <div class="space-y-4">
+                    <!-- Last Backup -->
+                    <div>
+                        <span class="text-sm text-gray-400">Last Backup</span>
+                        <p id="lastBackup" class="text-sm text-white mt-1">Never</p>
+                    </div>
+
+                    <!-- Actions -->
+                    <div class="flex space-x-3">
+                        <button onclick="createBackup()" class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                            <i class="fas fa-download mr-2"></i>
+                            Create Backup
+                        </button>
+                        <button onclick="openRestoreModal()" class="inline-flex items-center px-4 py-2 border border-gray-700 rounded-md shadow-sm text-sm font-medium text-gray-400 bg-gray-800 hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                            <i class="fas fa-upload mr-2"></i>
+                            Restore
+                        </button>
+                    </div>
+
+                    <!-- Backup History -->
+                    <div>
+                        <h4 class="text-sm font-medium text-white mb-2">Backup History</h4>
+                        <div class="bg-gray-700 rounded-lg overflow-hidden">
+                            <ul id="backupHistory" class="divide-y divide-gray-600">
+                                <li class="px-4 py-3 text-sm text-gray-400">Loading...</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- System Configuration -->
+            <div class="bg-gray-800 shadow rounded-lg p-6">
+                <h3 class="text-lg font-medium text-white mb-4">System Configuration</h3>
+                <form id="configForm" class="space-y-4">
+                    <!-- Rate Limiting -->
+                    <div>
+                        <label class="text-sm font-medium text-gray-400">Rate Limiting</label>
+                        <div class="mt-2 grid grid-cols-2 gap-4">
+                            <div>
+                                <label for="rateWindow" class="block text-xs text-gray-400">Time Window (minutes)</label>
+                                <input type="number" id="rateWindow" name="rateWindow" min="1" class="mt-1 block w-full bg-gray-700 border-gray-600 text-white rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
+                            </div>
+                            <div>
+                                <label for="rateLimit" class="block text-xs text-gray-400">Max Requests</label>
+                                <input type="number" id="rateLimit" name="rateLimit" min="1" class="mt-1 block w-full bg-gray-700 border-gray-600 text-white rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- WhatsApp Settings -->
+                    <div>
+                        <label class="text-sm font-medium text-gray-400">WhatsApp Settings</label>
+                        <div class="mt-2 space-y-2">
+                            <div class="flex items-center">
+                                <input type="checkbox" id="autoReconnect" name="autoReconnect" class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-600 rounded bg-gray-700">
+                                <label for="autoReconnect" class="ml-2 text-sm text-gray-400">Auto Reconnect</label>
+                            </div>
+                            <div>
+                                <label for="reconnectAttempts" class="block text-xs text-gray-400">Max Reconnect Attempts</label>
+                                <input type="number" id="reconnectAttempts" name="reconnectAttempts" min="0" class="mt-1 block w-full bg-gray-700 border-gray-600 text-white rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Backup Settings -->
+                    <div>
+                        <label class="text-sm font-medium text-gray-400">Backup Settings</label>
+                        <div class="mt-2 grid grid-cols-2 gap-4">
+                            <div>
+                                <label for="backupRetention" class="block text-xs text-gray-400">Retention Days</label>
+                                <input type="number" id="backupRetention" name="backupRetention" min="1" class="mt-1 block w-full bg-gray-700 border-gray-600 text-white rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
+                            </div>
+                            <div>
+                                <label for="autoBackup" class="block text-xs text-gray-400">Auto Backup (days)</label>
+                                <input type="number" id="autoBackup" name="autoBackup" min="0" class="mt-1 block w-full bg-gray-700 border-gray-600 text-white rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Save Button -->
+                    <div class="pt-4">
+                        <button type="submit" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-indigo-600 text-base font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                            Save Changes
+                        </button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Change Password -->
+            <div class="bg-gray-800 shadow rounded-lg p-6">
+                <h3 class="text-lg font-medium text-white mb-4">Change Admin Password</h3>
+                <form id="passwordForm" class="space-y-4">
+                    <div>
+                        <label for="currentPassword" class="block text-sm font-medium text-gray-400">Current Password</label>
+                        <input type="password" id="currentPassword" name="currentPassword" required class="mt-1 block w-full bg-gray-700 border-gray-600 text-white rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
+                    </div>
+                    <div>
+                        <label for="newPassword" class="block text-sm font-medium text-gray-400">New Password</label>
+                        <input type="password" id="newPassword" name="newPassword" required class="mt-1 block w-full bg-gray-700 border-gray-600 text-white rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
+                    </div>
+                    <div>
+                        <label for="confirmPassword" class="block text-sm font-medium text-gray-400">Confirm New Password</label>
+                        <input type="password" id="confirmPassword" name="confirmPassword" required class="mt-1 block w-full bg-gray-700 border-gray-600 text-white rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
+                    </div>
+                    <div>
+                        <button type="submit" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-indigo-600 text-base font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                            Update Password
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </main>
+
+    <!-- Restore Modal -->
+    <div id="restoreModal" class="fixed z-10 inset-0 overflow-y-auto hidden" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+        <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+            <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true"></div>
+            <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+            <div class="inline-block align-bottom bg-gray-800 rounded-lg px-4 pt-5 pb-4 text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full sm:p-6">
+                <div>
+                    <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-yellow-100">
+                        <i class="fas fa-exclamation-triangle text-yellow-600"></i>
+                    </div>
+                    <div class="mt-3 text-center sm:mt-5">
+                        <h3 class="text-lg leading-6 font-medium text-white" id="modal-title">
+                            Restore System
+                        </h3>
+                        <div class="mt-2">
+                            <p class="text-sm text-gray-400">
+                                Select a backup to restore. This will replace all current data.
+                            </p>
+                            <select id="backupSelect" class="mt-4 block w-full bg-gray-700 border-gray-600 text-white rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500">
+                                <option value="">Loading backups...</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="mt-5 sm:mt-6 sm:grid sm:grid-cols-2 sm:gap-3 sm:grid-flow-row-dense">
+                    <button type="button" onclick="restoreBackup()" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-yellow-600 text-base font-medium text-white hover:bg-yellow-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500 sm:col-start-2 sm:text-sm">
+                        Restore
+                    </button>
+                    <button type="button" onclick="closeRestoreModal()" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-700 shadow-sm px-4 py-2 bg-gray-800 text-base font-medium text-gray-400 hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:col-start-1 sm:text-sm">
+                        Cancel
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Authentication check
+        const adminToken = localStorage.getItem('adminToken');
+        if (!adminToken) {
+            window.location.href = '../index.html';
+        }
+
+        // WhatsApp Connection
+        let qrCheckInterval;
+
+        const checkWhatsAppStatus = async () => {
+            try {
+                const response = await fetch('http://localhost:3000/api/admin/whatsapp/status', {
+                    headers: {
+                        'Authorization': `Bearer ${adminToken}`
+                    }
+                });
+
+                const data = await response.json();
+                updateWhatsAppStatus(data.status);
+            } catch (error) {
+                console.error('Error checking WhatsApp status:', error);
+                updateWhatsAppStatus('error');
+            }
+        };
+
+        const updateWhatsAppStatus = (status) => {
+            const statusElement = document.getElementById('waStatus');
+            const qrSection = document.getElementById('qrCodeSection');
+            const connectedInfo = document.getElementById('connectedInfo');
+
+            switch (status) {
+                case 'connected':
+                    statusElement.className = 'px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800';
+                    statusElement.textContent = 'Connected';
+                    qrSection.classList.add('hidden');
+                    connectedInfo.classList.remove('hidden');
+                    clearInterval(qrCheckInterval);
+                    break;
+                case 'disconnected':
+                    statusElement.className = 'px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800';
+                    statusElement.textContent = 'Disconnected';
+                    qrSection.classList.remove('hidden');
+                    connectedInfo.classList.add('hidden');
+                    startQRCheck();
+                    break;
+                case 'error':
+                    statusElement.className = 'px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800';
+                    statusElement.textContent = 'Error';
+                    qrSection.classList.add('hidden');
+                    connectedInfo.classList.add('hidden');
+                    break;
+            }
+        };
+
+        const startQRCheck = () => {
+            clearInterval(qrCheckInterval);
+            qrCheckInterval = setInterval(async () => {
+                try {
+                    const response = await fetch('http://localhost:3000/api/admin/whatsapp/qr', {
+                        headers: {
+                            'Authorization': `Bearer ${adminToken}`
+                        }
+                    });
+
+                    const data = await response.json();
+                    if (data.qr) {
+                        document.getElementById('qrCode').innerHTML = data.qr;
+                    }
+                } catch (error) {
+                    console.error('Error fetching QR code:', error);
+                }
+            }, 5000);
+        };
+
+        const refreshConnection = () => {
+            checkWhatsAppStatus();
+        };
+
+        const logoutWhatsApp = async () => {
+            if (!confirm('Are you sure you want to logout from WhatsApp?')) return;
+
+            try {
+                const response = await fetch('http://localhost:3000/api/admin/whatsapp/logout', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${adminToken}`
+                    }
+                });
+
+                const data = await response.json();
+                if (data.success) {
+                    checkWhatsAppStatus();
+                }
+            } catch (error) {
+                console.error('Error logging out WhatsApp:', error);
+            }
+        };
+
+        // Backup & Restore
+        const createBackup = async () => {
+            try {
+                const response = await fetch('http://localhost:3000/api/admin/backup', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${adminToken}`
+                    }
+                });
+
+                const data = await response.json();
+                if (data.success) {
+                    fetchBackupHistory();
+                }
+            } catch (error) {
+                console.error('Error creating backup:', error);
+            }
+        };
+
+        const fetchBackupHistory = async () => {
+            try {
+                const response = await fetch('http://localhost:3000/api/admin/backup/history', {
+                    headers: {
+                        'Authorization': `Bearer ${adminToken}`
+                    }
+                });
+
+                const data = await response.json();
+                if (data.success) {
+                    updateBackupHistory(data.backups);
+                }
+            } catch (error) {
+                console.error('Error fetching backup history:', error);
+            }
+        };
+
+        const updateBackupHistory = (backups) => {
+            const historyElement = document.getElementById('backupHistory');
+            if (backups.length === 0) {
+                historyElement.innerHTML = '<li class="px-4 py-3 text-sm text-gray-400">No backups found</li>';
+                return;
+            }
+
+            historyElement.innerHTML = backups.map(backup => `
+                <li class="px-4 py-3">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-sm font-medium text-white">${new Date(backup.timestamp).toLocaleString('id-ID')}</p>
+                            <p class="text-xs text-gray-400">${backup.size} bytes</p>
+                        </div>
+                        <button onclick="downloadBackup('${backup.timestamp}')" class="text-indigo-400 hover:text-indigo-300">
+                            <i class="fas fa-download"></i>
+                        </button>
+                    </div>
+                </li>
+            `).join('');
+
+            // Update last backup info
+            if (backups.length > 0) {
+                document.getElementById('lastBackup').textContent = new Date(backups[0].timestamp).toLocaleString('id-ID');
+            }
+
+            // Update restore modal select
+            const backupSelect = document.getElementById('backupSelect');
+            backupSelect.innerHTML = backups.map(backup => `
+                <option value="${backup.timestamp}">
+                    ${new Date(backup.timestamp).toLocaleString('id-ID')} (${backup.size} bytes)
+                </option>
+            `).join('');
+        };
+
+        const downloadBackup = async (timestamp) => {
+            try {
+                const response = await fetch(`http://localhost:3000/api/admin/backup/${timestamp}`, {
+                    headers: {
+                        'Authorization': `Bearer ${adminToken}`
+                    }
+                });
+
+                if (response.ok) {
+                    const blob = await response.blob();
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `backup-${timestamp}.zip`;
+                    document.body.appendChild(a);
+                    a.click();
+                    window.URL.revokeObjectURL(url);
+                    a.remove();
+                }
+            } catch (error) {
+                console.error('Error downloading backup:', error);
+            }
+        };
+
+        // Restore Modal
+        const openRestoreModal = () => {
+            document.getElementById('restoreModal').classList.remove('hidden');
+        };
+
+        const closeRestoreModal = () => {
+            document.getElementById('restoreModal').classList.add('hidden');
+        };
+
+        const restoreBackup = async () => {
+            const timestamp = document.getElementById('backupSelect').value;
+            if (!timestamp) return;
+
+            if (!confirm('Are you sure you want to restore this backup? All current data will be replaced.')) return;
+
+            try {
+                const response = await fetch('http://localhost:3000/api/admin/restore', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${adminToken}`
+                    },
+                    body: JSON.stringify({ timestamp })
+                });
+
+                const data = await response.json();
+                if (data.success) {
+                    closeRestoreModal();
+                    alert('System restored successfully!');
+                }
+            } catch (error) {
+                console.error('Error restoring backup:', error);
+            }
+        };
+
+        // System Configuration
+        const fetchConfig = async () => {
+            try {
+                const response = await fetch('http://localhost:3000/api/admin/config', {
+                    headers: {
+                        'Authorization': `Bearer ${adminToken}`
+                    }
+                });
+
+                const data = await response.json();
+                if (data.success) {
+                    updateConfigForm(data.config);
+                }
+            } catch (error) {
+                console.error('Error fetching config:', error);
+            }
+        };
+
+        const updateConfigForm = (config) => {
+            document.getElementById('rateWindow').value = config.rateLimit.window;
+            document.getElementById('rateLimit').value = config.rateLimit.max;
+            document.getElementById('autoReconnect').checked = config.whatsapp.autoReconnect;
+            document.getElementById('reconnectAttempts').value = config.whatsapp.maxRetries;
+            document.getElementById('backupRetention').value = config.backup.retentionDays;
+            document.getElementById('autoBackup').value = config.backup.autoBackupDays;
+        };
+
+        // Form Submissions
+        document.getElementById('configForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const formData = new FormData(e.target);
+            const config = {
+                rateLimit: {
+                    window: parseInt(formData.get('rateWindow')),
+                    max: parseInt(formData.get('rateLimit'))
+                },
+                whatsapp: {
+                    autoReconnect: formData.get('autoReconnect') === 'on',
+                    maxRetries: parseInt(formData.get('reconnectAttempts'))
+                },
+                backup: {
+                    retentionDays: parseInt(formData.get('backupRetention')),
+                    autoBackupDays: parseInt(formData.get('autoBackup'))
+                }
+            };
+
+            try {
+                const response = await fetch('http://localhost:3000/api/admin/config', {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${adminToken}`
+                    },
+                    body: JSON.stringify(config)
+                });
+
+                const data = await response.json();
+                if (data.success) {
+                    alert('Configuration saved successfully!');
+                }
+            } catch (error) {
+                console.error('Error saving config:', error);
+            }
+        });
+
+        document.getElementById('passwordForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const formData = new FormData(e.target);
+            const currentPassword = formData.get('currentPassword');
+            const newPassword = formData.get('newPassword');
+            const confirmPassword = formData.get('confirmPassword');
+
+            if (newPassword !== confirmPassword) {
+                alert('New passwords do not match!');
+                return;
+            }
+
+            try {
+                const response = await fetch('http://localhost:3000/api/admin/password', {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${adminToken}`
+                    },
+                    body: JSON.stringify({
+                        currentPassword,
+                        newPassword
+                    })
+                });
+
+                const data = await response.json();
+                if (data.success) {
+                    alert('Password updated successfully!');
+                    e.target.reset();
+                }
+            } catch (error) {
+                console.error('Error updating password:', error);
+            }
+        });
+
+        // Initialize
+        checkWhatsAppStatus();
+        fetchBackupHistory();
+        fetchConfig();
+    </script>
+</body>
+</html>
