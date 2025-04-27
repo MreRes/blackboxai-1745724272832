@@ -1,0 +1,187 @@
+{
+    "common": {
+        "yes": "Ya",
+        "no": "Tidak",
+        "save": "Simpan",
+        "cancel": "Batal",
+        "edit": "Edit",
+        "delete": "Hapus",
+        "loading": "Memuat...",
+        "success": "Berhasil",
+        "error": "Error",
+        "confirm": "Konfirmasi",
+        "back": "Kembali",
+        "next": "Selanjutnya",
+        "search": "Cari",
+        "filter": "Filter",
+        "all": "Semua",
+        "none": "Tidak ada",
+        "more": "Lainnya"
+    },
+    "auth": {
+        "login": "Masuk",
+        "logout": "Keluar",
+        "register": "Daftar",
+        "username": "Username",
+        "password": "Password",
+        "activationCode": "Kode Aktivasi",
+        "forgotPassword": "Lupa Password?",
+        "loginSuccess": "Login berhasil",
+        "loginError": "Username atau password salah",
+        "logoutSuccess": "Logout berhasil",
+        "sessionExpired": "Sesi telah berakhir, silakan login kembali",
+        "unauthorized": "Akses ditolak"
+    },
+    "user": {
+        "profile": "Profil",
+        "settings": "Pengaturan",
+        "subscription": {
+            "active": "Aktif",
+            "expired": "Kadaluarsa",
+            "expiryDate": "Tanggal Kadaluarsa: {date}",
+            "daysLeft": "Tersisa {days} hari"
+        },
+        "phoneNumber": "Nomor Telepon",
+        "addPhoneNumber": "Tambah Nomor Telepon",
+        "removePhoneNumber": "Hapus Nomor Telepon"
+    },
+    "transaction": {
+        "title": "Transaksi",
+        "new": "Transaksi Baru",
+        "edit": "Edit Transaksi",
+        "delete": "Hapus Transaksi",
+        "type": {
+            "income": "Pemasukan",
+            "expense": "Pengeluaran"
+        },
+        "amount": "Jumlah",
+        "category": "Kategori",
+        "description": "Deskripsi",
+        "date": "Tanggal",
+        "attachment": "Lampiran",
+        "success": {
+            "create": "Transaksi berhasil dibuat",
+            "update": "Transaksi berhasil diupdate",
+            "delete": "Transaksi berhasil dihapus"
+        },
+        "error": {
+            "create": "Gagal membuat transaksi",
+            "update": "Gagal mengupdate transaksi",
+            "delete": "Gagal menghapus transaksi"
+        }
+    },
+    "budget": {
+        "title": "Budget",
+        "new": "Budget Baru",
+        "edit": "Edit Budget",
+        "delete": "Hapus Budget",
+        "name": "Nama Budget",
+        "amount": "Jumlah Budget",
+        "period": {
+            "daily": "Harian",
+            "weekly": "Mingguan",
+            "monthly": "Bulanan",
+            "yearly": "Tahunan",
+            "custom": "Kustom"
+        },
+        "startDate": "Tanggal Mulai",
+        "endDate": "Tanggal Berakhir",
+        "categories": "Kategori",
+        "notifications": {
+            "enabled": "Aktifkan Notifikasi",
+            "threshold": "Batas Notifikasi",
+            "frequency": "Frekuensi Notifikasi"
+        },
+        "status": {
+            "active": "Aktif",
+            "completed": "Selesai",
+            "cancelled": "Dibatalkan"
+        },
+        "progress": "Progress: {percent}%",
+        "remaining": "Sisa: {amount}",
+        "alert": {
+            "threshold": "Budget {category} telah mencapai {percent}%",
+            "exceeded": "Budget {category} telah terlampaui"
+        }
+    },
+    "report": {
+        "title": "Laporan",
+        "daily": "Laporan Harian",
+        "weekly": "Laporan Mingguan",
+        "monthly": "Laporan Bulanan",
+        "yearly": "Laporan Tahunan",
+        "custom": "Laporan Kustom",
+        "period": "Periode",
+        "summary": {
+            "income": "Total Pemasukan",
+            "expense": "Total Pengeluaran",
+            "balance": "Saldo",
+            "transactions": "Total Transaksi"
+        },
+        "categories": {
+            "title": "Kategori",
+            "topExpenses": "Pengeluaran Terbesar",
+            "topIncome": "Pemasukan Terbesar"
+        },
+        "trends": {
+            "title": "Tren",
+            "income": "Tren Pemasukan",
+            "expense": "Tren Pengeluaran"
+        }
+    },
+    "whatsapp": {
+        "welcome": "Selamat datang di Asisten Keuangan! Ketik 'bantuan' untuk melihat daftar perintah.",
+        "help": "Daftar perintah yang tersedia:\n- catat pengeluaran [jumlah] untuk [kategori]\n- catat pemasukan [jumlah] dari [kategori]\n- lihat transaksi\n- lihat budget\n- laporan [harian/bulanan/tahunan]",
+        "registration": {
+            "start": "Untuk mendaftar, silakan hubungi admin untuk mendapatkan kode aktivasi.",
+            "success": "Pendaftaran berhasil! Selamat menggunakan layanan kami.",
+            "error": "Pendaftaran gagal. Silakan coba lagi."
+        },
+        "activation": {
+            "prompt": "Masukkan kode aktivasi Anda.",
+            "success": "Aktivasi berhasil! Selamat menggunakan layanan kami.",
+            "error": "Kode aktivasi tidak valid. Silakan coba lagi."
+        },
+        "transaction": {
+            "success": "Transaksi berhasil dicatat:\n{type}: Rp {amount}\nKategori: {category}",
+            "error": "Format transaksi tidak valid. Contoh: 'catat pengeluaran 50000 untuk makan'"
+        }
+    },
+    "admin": {
+        "dashboard": "Dashboard Admin",
+        "users": "Manajemen User",
+        "transactions": "Manajemen Transaksi",
+        "reports": "Laporan Admin",
+        "settings": "Pengaturan Sistem",
+        "backup": {
+            "create": "Buat Backup",
+            "restore": "Restore Backup",
+            "success": "Backup berhasil dibuat",
+            "error": "Backup gagal"
+        },
+        "system": {
+            "status": "Status Sistem",
+            "maintenance": "Mode Maintenance",
+            "logs": "Log Sistem"
+        }
+    },
+    "errors": {
+        "required": "{field} wajib diisi",
+        "invalid": "{field} tidak valid",
+        "minLength": "{field} minimal {length} karakter",
+        "maxLength": "{field} maksimal {length} karakter",
+        "min": "{field} minimal {min}",
+        "max": "{field} maksimal {max}",
+        "email": "Email tidak valid",
+        "phone": "Nomor telepon tidak valid",
+        "date": "Tanggal tidak valid",
+        "number": "Harus berupa angka",
+        "server": "Terjadi kesalahan server",
+        "network": "Koneksi internet terputus",
+        "notFound": "Data tidak ditemukan",
+        "unauthorized": "Akses ditolak",
+        "forbidden": "Tidak memiliki izin",
+        "conflict": "Data sudah ada",
+        "validation": "Validasi gagal"
+    }
+}
