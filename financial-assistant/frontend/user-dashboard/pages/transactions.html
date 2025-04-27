@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Transaksi - Asisten Keuangan</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/id.js"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Navigation (same as dashboard.html) -->
+    <nav class="bg-white shadow-lg">
+        <!-- ... (copy navigation code from dashboard.html) ... -->
+    </nav>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+        <!-- Header -->
+        <div class="px-4 sm:px-0 flex justify-between items-center">
+            <h2 class="text-2xl font-semibold text-gray-900">Transaksi</h2>
+            <button onclick="openTransactionModal()" class="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                <i class="fas fa-plus -ml-1 mr-2"></i>
+                Tambah Transaksi
+            </button>
+        </div>
+
+        <!-- Filters -->
+        <div class="mt-6 bg-white shadow px-4 py-5 sm:rounded-lg sm:p-6">
+            <div class="grid grid-cols-1 gap-6 sm:grid-cols-4">
+                <!-- Date Range -->
+                <div>
+                    <label for="dateRange" class="block text-sm font-medium text-gray-700">Periode</label>
+                    <input type="text" id="dateRange" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                </div>
+                <!-- Type -->
+                <div>
+                    <label for="typeFilter" class="block text-sm font-medium text-gray-700">Tipe</label>
+                    <select id="typeFilter" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                        <option value="">Semua</option>
+                        <option value="income">Pemasukan</option>
+                        <option value="expense">Pengeluaran</option>
+                    </select>
+                </div>
+                <!-- Category -->
+                <div>
+                    <label for="categoryFilter" class="block text-sm font-medium text-gray-700">Kategori</label>
+                    <select id="categoryFilter" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                        <option value="">Semua</option>
+                    </select>
+                </div>
+                <!-- Search -->
+                <div>
+                    <label for="search" class="block text-sm font-medium text-gray-700">Cari</label>
+                    <input type="text" id="search" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" placeholder="Cari transaksi...">
+                </div>
+            </div>
+        </div>
+
+        <!-- Transactions Table -->
+        <div class="mt-8 flex flex-col">
+            <div class="-my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
+                <div class="py-2 align-middle inline-block min-w-full sm:px-6 lg:px-8">
+                    <div class="shadow overflow-hidden border-b border-gray-200 sm:rounded-lg">
+                        <table class="min-w-full divide-y divide-gray-200">
+                            <thead class="bg-gray-50">
+                                <tr>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Tanggal
+                                    </th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Tipe
+                                    </th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Kategori
+                                    </th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Deskripsi
+                                    </th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Jumlah
+                                    </th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Sumber
+                                    </th>
+                                    <th scope="col" class="relative px-6 py-3">
+                                        <span class="sr-only">Edit</span>
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody id="transactionsTable" class="bg-white divide-y divide-gray-200">
+                                <tr>
+                                    <td colspan="7" class="px-6 py-4 text-center text-sm text-gray-500">
+                                        Loading...
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Pagination -->
+        <div class="bg-white px-4 py-3 flex items-center justify-between border-t border-gray-200 sm:px-6 mt-4 rounded-lg">
+            <div class="flex-1 flex justify-between sm:hidden">
+                <button id="prevButtonMobile" class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                    Previous
+                </button>
+                <button id="nextButtonMobile" class="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">
+                    Next
+                </button>
+            </div>
+            <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
+                <div>
+                    <p class="text-sm text-gray-700">
+                        Showing <span id="startCount">1</span> to <span id="endCount">10</span> of <span id="totalCount">20</span> results
+                    </p>
+                </div>
+                <div>
+                    <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination" id="pagination">
+                        <!-- Pagination buttons will be inserted here -->
+                    </nav>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Transaction Modal -->
+    <div id="transactionModal" class="fixed z-10 inset-0 overflow-y-auto hidden" aria-labelledby="modal-title" role="dialog" aria-modal="true">
+        <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+            <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true"></div>
+            <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
+            <div class="inline-block align-bottom bg-white rounded-lg px-4 pt-5 pb-4 text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full sm:p-6">
+                <form id="transactionForm">
+                    <div>
+                        <h3 class="text-lg leading-6 font-medium text-gray-900" id="modal-title">
+                            Tambah Transaksi
+                        </h3>
+                        <div class="mt-4 space-y-4">
+                            <!-- Type -->
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700">Tipe</label>
+                                <div class="mt-1">
+                                    <div class="flex space-x-4">
+                                        <label class="inline-flex items-center">
+                                            <input type="radio" name="type" value="income" class="form-radio text-indigo-600">
+                                            <span class="ml-2">Pemasukan</span>
+                                        </label>
+                                        <label class="inline-flex items-center">
+                                            <input type="radio" name="type" value="expense" class="form-radio text-indigo-600">
+                                            <span class="ml-2">Pengeluaran</span>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Amount -->
+                            <div>
+                                <label for="amount" class="block text-sm font-medium text-gray-700">Jumlah</label>
+                                <div class="mt-1 relative rounded-md shadow-sm">
+                                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                        <span class="text-gray-500 sm:text-sm">Rp</span>
+                                    </div>
+                                    <input type="number" name="amount" id="amount" class="focus:ring-indigo-500 focus:border-indigo-500 block w-full pl-12 pr-12 sm:text-sm border-gray-300 rounded-md" placeholder="0">
+                                </div>
+                            </div>
+                            <!-- Category -->
+                            <div>
+                                <label for="category" class="block text-sm font-medium text-gray-700">Kategori</label>
+                                <select id="category" name="category" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md">
+                                    <!-- Categories will be populated dynamically -->
+                                </select>
+                            </div>
+                            <!-- Description -->
+                            <div>
+                                <label for="description" class="block text-sm font-medium text-gray-700">Deskripsi</label>
+                                <div class="mt-1">
+                                    <textarea id="description" name="description" rows="3" class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md"></textarea>
+                                </div>
+                            </div>
+                            <!-- Date -->
+                            <div>
+                                <label for="date" class="block text-sm font-medium text-gray-700">Tanggal</label>
+                                <input type="text" id="date" name="date" class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mt-5 sm:mt-6 sm:grid sm:grid-cols-2 sm:gap-3 sm:grid-flow-row-dense">
+                        <button type="submit" class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-indigo-600 text-base font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:col-start-2 sm:text-sm">
+                            Simpan
+                        </button>
+                        <button type="button" onclick="closeTransactionModal()" class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 sm:mt-0 sm:col-start-1 sm:text-sm">
+                            Batal
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Authentication check
+        const token = localStorage.getItem('token');
+        if (!token) {
+            window.location.href = '../index.html';
+        }
+
+        // Initialize date pickers
+        flatpickr("#dateRange", {
+            mode: "range",
+            locale: "id",
+            dateFormat: "Y-m-d",
+            onChange: (selectedDates) => {
+                if (selectedDates.length === 2) {
+                    fetchTransactions();
+                }
+            }
+        });
+
+        flatpickr("#date", {
+            locale: "id",
+            dateFormat: "Y-m-d",
+            defaultDate: new Date()
+        });
+
+        // Global variables
+        let currentPage = 1;
+        const itemsPerPage = 10;
+        let totalItems = 0;
+        let transactions = [];
+
+        // Fetch categories
+        const fetchCategories = async () => {
+            try {
+                const response = await fetch('http://localhost:3000/api/transactions/categories', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                const data = await response.json();
+                if (data.success) {
+                    const categories = data.categories;
+                    const categorySelects = document.querySelectorAll('#category, #categoryFilter');
+                    categorySelects.forEach(select => {
+                        select.innerHTML = '<option value="">Semua</option>' +
+                            categories.map(cat => `<option value="${cat}">${cat}</option>`).join('');
+                    });
+                }
+            } catch (error) {
+                console.error('Error fetching categories:', error);
+            }
+        };
+
+        // Fetch transactions
+        const fetchTransactions = async () => {
+            try {
+                const dateRange = document.getElementById('dateRange').value;
+                const type = document.getElementById('typeFilter').value;
+                const category = document.getElementById('categoryFilter').value;
+                const search = document.getElementById('search').value;
+
+                let url = `http://localhost:3000/api/transactions?page=${currentPage}&limit=${itemsPerPage}`;
+                if (dateRange) {
+                    const [startDate, endDate] = dateRange.split(' to ');
+                    url += `&startDate=${startDate}&endDate=${endDate}`;
+                }
+                if (type) url += `&type=${type}`;
+                if (category) url += `&category=${category}`;
+                if (search) url += `&search=${search}`;
+
+                const response = await fetch(url, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                const data = await response.json();
+                if (data.success) {
+                    transactions = data.transactions;
+                    totalItems = data.total;
+                    updateTransactionsTable();
+                    updatePagination();
+                }
+            } catch (error) {
+                console.error('Error fetching transactions:', error);
+            }
+        };
+
+        // Update transactions table
+        const updateTransactionsTable = () => {
+            const tbody = document.getElementById('transactionsTable');
+            tbody.innerHTML = transactions.map(t => `
+                <tr>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        ${new Date(t.date).toLocaleDateString('id-ID')}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                            t.type === 'income' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                        }">
+                            ${t.type === 'income' ? 'Pemasukan' : 'Pengeluaran'}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        ${t.category}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        ${t.description || '-'}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm ${
+                        t.type === 'income' ? 'text-green-600' : 'text-red-600'
+                    }">
+                        Rp ${t.amount.toLocaleString('id')}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        ${t.source}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                        <button onclick="editTransaction('${t._id}')" class="text-indigo-600 hover:text-indigo-900 mr-3">
+                            Edit
+                        </button>
+                        <button onclick="deleteTransaction('${t._id}')" class="text-red-600 hover:text-red-900">
+                            Hapus
+                        </button>
+                    </td>
+                </tr>
+            `).join('');
+        };
+
+        // Update pagination
+        const updatePagination = () => {
+            const totalPages = Math.ceil(totalItems / itemsPerPage);
+            document.getElementById('startCount').textContent = ((currentPage - 1) * itemsPerPage) + 1;
+            document.getElementById('endCount').textContent = Math.min(currentPage * itemsPerPage, totalItems);
+            document.getElementById('totalCount').textContent = totalItems;
+
+            const pagination = document.getElementById('pagination');
+            pagination.innerHTML = `
+                <button onclick="changePage(${currentPage - 1})" class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50" ${currentPage === 1 ? 'disabled' : ''}>
+                    Previous
+                </button>
+                ${Array.from({length: totalPages}, (_, i) => i + 1).map(page => `
+                    <button onclick="changePage(${page})" class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium ${page === currentPage ? 'text-indigo-600 bg-indigo-50' : 'text-gray-700 hover:bg-gray-50'}">
+                        ${page}
+                    </button>
+                `).join('')}
+                <button onclick="changePage(${currentPage + 1})" class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50" ${currentPage === totalPages ? 'disabled' : ''}>
+                    Next
+                </button>
+            `;
+        };
+
+        // Change page
+        const changePage = (page) => {
+            if (page < 1 || page > Math.ceil(totalItems / itemsPerPage)) return;
+            currentPage = page;
+            fetchTransactions();
+        };
+
+        // Transaction modal functions
+        const openTransactionModal = () => {
+            document.getElementById('transactionModal').classList.remove('hidden');
+            document.getElementById('transactionForm').reset();
+        };
+
+        const closeTransactionModal = () => {
+            document.getElementById('transactionModal').classList.add('hidden');
+        };
+
+        // Handle form submission
+        document.getElementById('transactionForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const formData = new FormData(e.target);
+            const transaction = {
+                type: formData.get('type'),
+                amount: parseFloat(formData.get('amount')),
+                category: formData.get('category'),
+                description: formData.get('description'),
+                date: formData.get('date')
+            };
+
+            try {
+                const response = await fetch('http://localhost:3000/api/transactions', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify(transaction)
+                });
+
+                const data = await response.json();
+                if (data.success) {
+                    closeTransactionModal();
+                    fetchTransactions();
+                }
+            } catch (error) {
+                console.error('Error creating transaction:', error);
+            }
+        });
+
+        // Delete transaction
+        const deleteTransaction = async (id) => {
+            if (!confirm('Apakah Anda yakin ingin menghapus transaksi ini?')) return;
+
+            try {
+                const response = await fetch(`http://localhost:3000/api/transactions/${id}`, {
+                    method: 'DELETE',
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                const data = await response.json();
+                if (data.success) {
+                    fetchTransactions();
+                }
+            } catch (error) {
+                console.error('Error deleting transaction:', error);
+            }
+        };
+
+        // Edit transaction
+        const editTransaction = (id) => {
+            const transaction = transactions.find(t => t._id === id);
+            if (!transaction) return;
+
+            document.querySelector(`input[name="type"][value="${transaction.type}"]`).checked = true;
+            document.getElementById('amount').value = transaction.amount;
+            document.getElementById('category').value = transaction.category;
+            document.getElementById('description').value = transaction.description || '';
+            document.getElementById('date').value = new Date(transaction.date).toISOString().split('T')[0];
+
+            // Update form action
+            const form = document.getElementById('transactionForm');
+            form.onsubmit = async (e) => {
+                e.preventDefault();
+                
+                const formData = new FormData(form);
+                const updatedTransaction = {
+                    type: formData.get('type'),
+                    amount: parseFloat(formData.get('amount')),
+                    category: formData.get('category'),
+                    description: formData.get('description'),
+                    date: formData.get('date')
+                };
+
+                try {
+                    const response = await fetch(`http://localhost:3000/api/transactions/${id}`, {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${token}`
+                        },
+                        body: JSON.stringify(updatedTransaction)
+                    });
+
+                    const data = await response.json();
+                    if (data.success) {
+                        closeTransactionModal();
+                        fetchTransactions();
+                    }
+                } catch (error) {
+                    console.error('Error updating transaction:', error);
+                }
+            };
+
+            openTransactionModal();
+        };
+
+        // Initialize
+        fetchCategories();
+        fetchTransactions();
+
+        // Add event listeners for filters
+        document.getElementById('typeFilter').addEventListener('change', fetchTransactions);
+        document.getElementById('categoryFilter').addEventListener('change', fetchTransactions);
+        document.getElementById('search').addEventListener('input', debounce(fetchTransactions, 500));
+
+        // Debounce function
+        function debounce(func, wait) {
+            let timeout;
+            return function executedFunction(...args) {
+                const later = () => {
+                    clearTimeout(timeout);
+                    func(...args);
+                };
+                clearTimeout(timeout);
+                timeout = setTimeout(later, wait);
+            };
+        }
+    </script>
+</body>
+</html>
