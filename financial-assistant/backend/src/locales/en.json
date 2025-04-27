@@ -1,0 +1,187 @@
+{
+    "common": {
+        "yes": "Yes",
+        "no": "No",
+        "save": "Save",
+        "cancel": "Cancel",
+        "edit": "Edit",
+        "delete": "Delete",
+        "loading": "Loading...",
+        "success": "Success",
+        "error": "Error",
+        "confirm": "Confirm",
+        "back": "Back",
+        "next": "Next",
+        "search": "Search",
+        "filter": "Filter",
+        "all": "All",
+        "none": "None",
+        "more": "More"
+    },
+    "auth": {
+        "login": "Login",
+        "logout": "Logout",
+        "register": "Register",
+        "username": "Username",
+        "password": "Password",
+        "activationCode": "Activation Code",
+        "forgotPassword": "Forgot Password?",
+        "loginSuccess": "Login successful",
+        "loginError": "Invalid username or password",
+        "logoutSuccess": "Logout successful",
+        "sessionExpired": "Session expired, please login again",
+        "unauthorized": "Access denied"
+    },
+    "user": {
+        "profile": "Profile",
+        "settings": "Settings",
+        "subscription": {
+            "active": "Active",
+            "expired": "Expired",
+            "expiryDate": "Expiry Date: {date}",
+            "daysLeft": "{days} days remaining"
+        },
+        "phoneNumber": "Phone Number",
+        "addPhoneNumber": "Add Phone Number",
+        "removePhoneNumber": "Remove Phone Number"
+    },
+    "transaction": {
+        "title": "Transactions",
+        "new": "New Transaction",
+        "edit": "Edit Transaction",
+        "delete": "Delete Transaction",
+        "type": {
+            "income": "Income",
+            "expense": "Expense"
+        },
+        "amount": "Amount",
+        "category": "Category",
+        "description": "Description",
+        "date": "Date",
+        "attachment": "Attachment",
+        "success": {
+            "create": "Transaction created successfully",
+            "update": "Transaction updated successfully",
+            "delete": "Transaction deleted successfully"
+        },
+        "error": {
+            "create": "Failed to create transaction",
+            "update": "Failed to update transaction",
+            "delete": "Failed to delete transaction"
+        }
+    },
+    "budget": {
+        "title": "Budget",
+        "new": "New Budget",
+        "edit": "Edit Budget",
+        "delete": "Delete Budget",
+        "name": "Budget Name",
+        "amount": "Budget Amount",
+        "period": {
+            "daily": "Daily",
+            "weekly": "Weekly",
+            "monthly": "Monthly",
+            "yearly": "Yearly",
+            "custom": "Custom"
+        },
+        "startDate": "Start Date",
+        "endDate": "End Date",
+        "categories": "Categories",
+        "notifications": {
+            "enabled": "Enable Notifications",
+            "threshold": "Notification Threshold",
+            "frequency": "Notification Frequency"
+        },
+        "status": {
+            "active": "Active",
+            "completed": "Completed",
+            "cancelled": "Cancelled"
+        },
+        "progress": "Progress: {percent}%",
+        "remaining": "Remaining: {amount}",
+        "alert": {
+            "threshold": "Budget {category} has reached {percent}%",
+            "exceeded": "Budget {category} has been exceeded"
+        }
+    },
+    "report": {
+        "title": "Reports",
+        "daily": "Daily Report",
+        "weekly": "Weekly Report",
+        "monthly": "Monthly Report",
+        "yearly": "Yearly Report",
+        "custom": "Custom Report",
+        "period": "Period",
+        "summary": {
+            "income": "Total Income",
+            "expense": "Total Expenses",
+            "balance": "Balance",
+            "transactions": "Total Transactions"
+        },
+        "categories": {
+            "title": "Categories",
+            "topExpenses": "Top Expenses",
+            "topIncome": "Top Income"
+        },
+        "trends": {
+            "title": "Trends",
+            "income": "Income Trend",
+            "expense": "Expense Trend"
+        }
+    },
+    "whatsapp": {
+        "welcome": "Welcome to Financial Assistant! Type 'help' to see available commands.",
+        "help": "Available commands:\n- record expense [amount] for [category]\n- record income [amount] from [category]\n- view transactions\n- view budget\n- report [daily/monthly/yearly]",
+        "registration": {
+            "start": "To register, please contact admin to get an activation code.",
+            "success": "Registration successful! Welcome to our service.",
+            "error": "Registration failed. Please try again."
+        },
+        "activation": {
+            "prompt": "Please enter your activation code.",
+            "success": "Activation successful! Welcome to our service.",
+            "error": "Invalid activation code. Please try again."
+        },
+        "transaction": {
+            "success": "Transaction recorded successfully:\n{type}: {amount}\nCategory: {category}",
+            "error": "Invalid transaction format. Example: 'record expense 50000 for food'"
+        }
+    },
+    "admin": {
+        "dashboard": "Admin Dashboard",
+        "users": "User Management",
+        "transactions": "Transaction Management",
+        "reports": "Admin Reports",
+        "settings": "System Settings",
+        "backup": {
+            "create": "Create Backup",
+            "restore": "Restore Backup",
+            "success": "Backup created successfully",
+            "error": "Backup failed"
+        },
+        "system": {
+            "status": "System Status",
+            "maintenance": "Maintenance Mode",
+            "logs": "System Logs"
+        }
+    },
+    "errors": {
+        "required": "{field} is required",
+        "invalid": "Invalid {field}",
+        "minLength": "{field} must be at least {length} characters",
+        "maxLength": "{field} must be at most {length} characters",
+        "min": "{field} must be at least {min}",
+        "max": "{field} must be at most {max}",
+        "email": "Invalid email address",
+        "phone": "Invalid phone number",
+        "date": "Invalid date",
+        "number": "Must be a number",
+        "server": "Server error occurred",
+        "network": "Network connection lost",
+        "notFound": "Data not found",
+        "unauthorized": "Access denied",
+        "forbidden": "Permission denied",
+        "conflict": "Data already exists",
+        "validation": "Validation failed"
+    }
+}
