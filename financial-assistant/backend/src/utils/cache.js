@@ -4,21 +4,26 @@ const logger = require('./logger');
 class CacheManager {
     constructor() {
         // Initialize caches with different TTLs
+        const limits = require('../config/limits');
+
         this.shortTermCache = new NodeCache({
-            stdTTL: 300, // 5 minutes
-            checkperiod: 60, // Check for expired keys every 60 seconds
-            useClones: false // Store references instead of copies
+            stdTTL: Math.min(300, limits.cache.ttl), // 5 minutes or configured TTL
+            checkperiod: 60,
+            maxKeys: Math.floor(limits.cache.maxItems / 3), // Distribute max items across caches
+            useClones: false
         });
 
         this.mediumTermCache = new NodeCache({
-            stdTTL: 3600, // 1 hour
-            checkperiod: 300,
+            stdTTL: Math.min(3600, limits.cache.ttl * 2), // 1 hour or 2x configured TTL
+            checkperiod: Math.min(300, limits.cache.checkPeriod),
+            maxKeys: Math.floor(limits.cache.maxItems / 3),
             useClones: false
         });
 
         this.longTermCache = new NodeCache({
-            stdTTL: 86400, // 24 hours
-            checkperiod: 3600,
+            stdTTL: Math.min(86400, limits.cache.ttl * 4), // 24 hours or 4x configured TTL
+            checkperiod: Math.min(3600, limits.cache.checkPeriod * 2),
+            maxKeys: Math.floor(limits.cache.maxItems / 3),
             useClones: false
         });
 
@@ -151,18 +156,31 @@ class CacheManager {
         };
     }
 
-    // Cache middleware for Express routes
-    middleware(duration = 300) {
+    // Cache middleware for Express routes with resource limits
+    middleware(duration = limits.cache.ttl) {
         return (req, res, next) => {
             // Skip caching for non-GET requests
             if (req.method !== 'GET') return next();
 
-            // Generate cache key from URL and query parameters
+            // Skip caching for authenticated routes if user is not verified
+            if (req.user && !req.user.isVerified) {
+                return next();
+            }
+
+            // Generate cache key from URL, query parameters, and user role
             const key = this.generateKey('route', {
                 url: req.originalUrl || req.url,
                 query: req.query,
-                user: req.user ? req.user._id : 'anonymous'
+                user: req.user ? {
+                    id: req.user._id,
+                    role: req.user.role
+                } : 'anonymous'
             });
+
+            // Check if we've reached the cache limit
+            if (this.getTotalKeys() >= limits.cache.maxItems) {
+                this.maintenance(); // Run maintenance to clear space
+            }
 
             // Try to get from cache
             const cachedResponse = this.get(key);
