@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .logo {
+            max-width: 150px;
+            margin-bottom: 20px;
+        }
+        .content {
+            background: #f9f9f9;
+            padding: 30px;
+            border-radius: 8px;
+        }
+        .button {
+            display: inline-block;
+            padding: 12px 24px;
+            background-color: #4F46E5;
+            color: white;
+            text-decoration: none;
+            border-radius: 6px;
+            margin: 20px 0;
+        }
+        .footer {
+            text-align: center;
+            margin-top: 30px;
+            font-size: 0.9em;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <img src="{{logoUrl}}" alt="Asisten Keuangan" class="logo">
+        <h1>Selamat Datang di Asisten Keuangan!</h1>
+    </div>
+
+    <div class="content">
+        <p>Hai {{username}},</p>
+
+        <p>Terima kasih telah bergabung dengan Asisten Keuangan! Kami senang Anda memilih kami sebagai partner dalam mengelola keuangan Anda.</p>
+
+        <p>Dengan Asisten Keuangan, Anda dapat:</p>
+        <ul>
+            <li>Mencatat dan melacak pengeluaran dan pemasukan</li>
+            <li>Mengatur dan memantau budget</li>
+            <li>Mendapatkan analisis keuangan personal</li>
+            <li>Menerima saran dan tips pengelolaan keuangan</li>
+        </ul>
+
+        <p>Untuk memulai, Anda dapat:</p>
+        <ol>
+            <li>Tambahkan nomor WhatsApp Anda untuk menggunakan fitur chat bot</li>
+            <li>Atur budget bulanan Anda</li>
+            <li>Mulai mencatat transaksi keuangan Anda</li>
+        </ol>
+
+        <a href="{{dashboardUrl}}" class="button">Akses Dashboard</a>
+
+        <p>Jika Anda membutuhkan bantuan, jangan ragu untuk:</p>
+        <ul>
+            <li>Menghubungi kami melalui WhatsApp di {{supportPhone}}</li>
+            <li>Mengirim email ke {{supportEmail}}</li>
+            <li>Mengunjungi <a href="{{helpUrl}}">Pusat Bantuan</a> kami</li>
+        </ul>
+    </div>
+
+    <div class="footer">
+        <p>Email ini dikirim ke {{email}}. Jika Anda tidak mendaftar untuk layanan ini, silakan abaikan email ini.</p>
+        <p>&copy; {{currentYear}} Asisten Keuangan. Semua hak dilindungi undang-undang.</p>
+        <p>
+            <a href="{{privacyUrl}}">Kebijakan Privasi</a> |
+            <a href="{{termsUrl}}">Syarat dan Ketentuan</a>
+        </p>
+    </div>
+</body>
+</html>
