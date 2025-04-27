@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Asisten Keuangan</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+    </style>
+</head>
+<body class="bg-gray-50">
+    <!-- Navigation -->
+    <nav class="bg-white shadow-lg">
+        <div class="max-w-7xl mx-auto px-4">
+            <div class="flex justify-between h-16">
+                <!-- Left side -->
+                <div class="flex">
+                    <div class="flex-shrink-0 flex items-center">
+                        <h1 class="text-xl font-bold text-indigo-600">Asisten Keuangan</h1>
+                    </div>
+                    <div class="hidden sm:ml-6 sm:flex sm:space-x-8">
+                        <a href="dashboard.html" class="border-indigo-500 text-gray-900 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
+                            Dashboard
+                        </a>
+                        <a href="transactions.html" class="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
+                            Transaksi
+                        </a>
+                        <a href="budget.html" class="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
+                            Budget
+                        </a>
+                        <a href="reports.html" class="border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
+                            Laporan
+                        </a>
+                    </div>
+                </div>
+                <!-- Right side -->
+                <div class="flex items-center">
+                    <button id="darkModeToggle" class="p-2 rounded-full text-gray-500 hover:text-gray-700">
+                        <i class="fas fa-moon"></i>
+                    </button>
+                    <div class="ml-3 relative">
+                        <div>
+                            <button id="userMenuButton" class="flex text-sm rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                                <span class="sr-only">Open user menu</span>
+                                <i class="fas fa-user-circle text-2xl text-gray-500"></i>
+                            </button>
+                        </div>
+                        <div id="userMenu" class="hidden origin-top-right absolute right-0 mt-2 w-48 rounded-md shadow-lg py-1 bg-white ring-1 ring-black ring-opacity-5">
+                            <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" id="profileButton">Profile</a>
+                            <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" id="logoutButton">Keluar</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+        <!-- Welcome Section -->
+        <div class="px-4 sm:px-0">
+            <h2 class="text-2xl font-semibold text-gray-900" id="welcomeMessage">Loading...</h2>
+            <p class="mt-1 text-sm text-gray-600" id="dateTime"></p>
+        </div>
+
+        <!-- Quick Stats -->
+        <div class="mt-6 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
+            <!-- Balance Card -->
+            <div class="bg-white overflow-hidden shadow rounded-lg">
+                <div class="p-5">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0">
+                            <i class="fas fa-wallet text-2xl text-indigo-600"></i>
+                        </div>
+                        <div class="ml-5 w-0 flex-1">
+                            <dl>
+                                <dt class="text-sm font-medium text-gray-500 truncate">
+                                    Saldo
+                                </dt>
+                                <dd class="text-lg font-semibold text-gray-900" id="balanceAmount">
+                                    Loading...
+                                </dd>
+                            </dl>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Income Card -->
+            <div class="bg-white overflow-hidden shadow rounded-lg">
+                <div class="p-5">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0">
+                            <i class="fas fa-arrow-down text-2xl text-green-600"></i>
+                        </div>
+                        <div class="ml-5 w-0 flex-1">
+                            <dl>
+                                <dt class="text-sm font-medium text-gray-500 truncate">
+                                    Pemasukan Bulan Ini
+                                </dt>
+                                <dd class="text-lg font-semibold text-gray-900" id="incomeAmount">
+                                    Loading...
+                                </dd>
+                            </dl>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Expense Card -->
+            <div class="bg-white overflow-hidden shadow rounded-lg">
+                <div class="p-5">
+                    <div class="flex items-center">
+                        <div class="flex-shrink-0">
+                            <i class="fas fa-arrow-up text-2xl text-red-600"></i>
+                        </div>
+                        <div class="ml-5 w-0 flex-1">
+                            <dl>
+                                <dt class="text-sm font-medium text-gray-500 truncate">
+                                    Pengeluaran Bulan Ini
+                                </dt>
+                                <dd class="text-lg font-semibold text-gray-900" id="expenseAmount">
+                                    Loading...
+                                </dd>
+                            </dl>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Charts Section -->
+        <div class="mt-8 grid grid-cols-1 gap-5 lg:grid-cols-2">
+            <!-- Expense by Category -->
+            <div class="bg-white overflow-hidden shadow rounded-lg">
+                <div class="p-5">
+                    <h3 class="text-lg leading-6 font-medium text-gray-900">
+                        Pengeluaran per Kategori
+                    </h3>
+                    <div class="mt-5">
+                        <canvas id="expenseChart" height="300"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Monthly Trend -->
+            <div class="bg-white overflow-hidden shadow rounded-lg">
+                <div class="p-5">
+                    <h3 class="text-lg leading-6 font-medium text-gray-900">
+                        Tren Bulanan
+                    </h3>
+                    <div class="mt-5">
+                        <canvas id="trendChart" height="300"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Transactions -->
+        <div class="mt-8">
+            <div class="bg-white shadow rounded-lg">
+                <div class="px-5 py-5 border-b border-gray-200">
+                    <h3 class="text-lg leading-6 font-medium text-gray-900">
+                        Transaksi Terakhir
+                    </h3>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="min-w-full divide-y divide-gray-200">
+                        <thead class="bg-gray-50">
+                            <tr>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Tanggal
+                                </th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Kategori
+                                </th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Deskripsi
+                                </th>
+                                <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                    Jumlah
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200" id="recentTransactions">
+                            <tr>
+                                <td colspan="4" class="px-6 py-4 text-center text-sm text-gray-500">
+                                    Loading...
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // Check authentication
+        const token = localStorage.getItem('token');
+        if (!token) {
+            window.location.href = '../index.html';
+        }
+
+        // Update welcome message
+        const user = JSON.parse(localStorage.getItem('user'));
+        document.getElementById('welcomeMessage').textContent = `Selamat datang, ${user.username}!`;
+
+        // Update date time
+        const updateDateTime = () => {
+            const now = new Date();
+            const options = { 
+                weekday: 'long', 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit'
+            };
+            document.getElementById('dateTime').textContent = now.toLocaleDateString('id-ID', options);
+        };
+        updateDateTime();
+        setInterval(updateDateTime, 60000);
+
+        // Toggle user menu
+        document.getElementById('userMenuButton').addEventListener('click', () => {
+            document.getElementById('userMenu').classList.toggle('hidden');
+        });
+
+        // Logout handler
+        document.getElementById('logoutButton').addEventListener('click', (e) => {
+            e.preventDefault();
+            localStorage.removeItem('token');
+            localStorage.removeItem('user');
+            window.location.href = '../index.html';
+        });
+
+        // Fetch dashboard data
+        const fetchDashboardData = async () => {
+            try {
+                const response = await fetch('http://localhost:3000/api/transactions?period=monthly', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    // Update stats
+                    document.getElementById('balanceAmount').textContent = 
+                        `Rp ${data.summary.balance.toLocaleString('id')}`;
+                    document.getElementById('incomeAmount').textContent = 
+                        `Rp ${data.summary.income.toLocaleString('id')}`;
+                    document.getElementById('expenseAmount').textContent = 
+                        `Rp ${data.summary.expense.toLocaleString('id')}`;
+
+                    // Update recent transactions
+                    updateRecentTransactions(data.transactions);
+
+                    // Update charts
+                    updateExpenseChart(data.transactions);
+                    updateTrendChart(data.transactions);
+                }
+            } catch (error) {
+                console.error('Error fetching dashboard data:', error);
+            }
+        };
+
+        // Update recent transactions table
+        const updateRecentTransactions = (transactions) => {
+            const tbody = document.getElementById('recentTransactions');
+            tbody.innerHTML = transactions.slice(0, 5).map(t => `
+                <tr>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        ${new Date(t.date).toLocaleDateString('id-ID')}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        ${t.category}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        ${t.description || '-'}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm ${t.type === 'expense' ? 'text-red-600' : 'text-green-600'}">
+                        ${t.type === 'expense' ? '-' : '+'} Rp ${t.amount.toLocaleString('id')}
+                    </td>
+                </tr>
+            `).join('');
+        };
+
+        // Update expense chart
+        const updateExpenseChart = (transactions) => {
+            const expensesByCategory = {};
+            transactions.filter(t => t.type === 'expense').forEach(t => {
+                expensesByCategory[t.category] = (expensesByCategory[t.category] || 0) + t.amount;
+            });
+
+            const ctx = document.getElementById('expenseChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: Object.keys(expensesByCategory),
+                    datasets: [{
+                        data: Object.values(expensesByCategory),
+                        backgroundColor: [
+                            '#4F46E5', '#7C3AED', '#EC4899', '#EF4444', '#F59E0B',
+                            '#10B981', '#3B82F6', '#6366F1', '#8B5CF6', '#D946EF'
+                        ]
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'right'
+                        }
+                    }
+                }
+            });
+        };
+
+        // Update trend chart
+        const updateTrendChart = (transactions) => {
+            const monthlyData = {};
+            transactions.forEach(t => {
+                const month = new Date(t.date).toLocaleDateString('id-ID', { month: 'short' });
+                if (!monthlyData[month]) {
+                    monthlyData[month] = { income: 0, expense: 0 };
+                }
+                if (t.type === 'income') {
+                    monthlyData[month].income += t.amount;
+                } else {
+                    monthlyData[month].expense += t.amount;
+                }
+            });
+
+            const ctx = document.getElementById('trendChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: Object.keys(monthlyData),
+                    datasets: [
+                        {
+                            label: 'Pemasukan',
+                            data: Object.values(monthlyData).map(d => d.income),
+                            borderColor: '#10B981',
+                            tension: 0.1
+                        },
+                        {
+                            label: 'Pengeluaran',
+                            data: Object.values(monthlyData).map(d => d.expense),
+                            borderColor: '#EF4444',
+                            tension: 0.1
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    }
+                }
+            });
+        };
+
+        // Dark mode toggle
+        const darkModeToggle = document.getElementById('darkModeToggle');
+        const htmlElement = document.documentElement;
+
+        darkModeToggle.addEventListener('click', () => {
+            htmlElement.classList.toggle('dark');
+            const isDark = htmlElement.classList.contains('dark');
+            localStorage.setItem('darkMode', isDark);
+            darkModeToggle.innerHTML = isDark ? 
+                '<i class="fas fa-sun"></i>' : 
+                '<i class="fas fa-moon"></i>';
+        });
+
+        // Initialize
+        fetchDashboardData();
+
+        // Check for saved dark mode preference
+        if (localStorage.getItem('darkMode') === 'true') {
+            htmlElement.classList.add('dark');
+            darkModeToggle.innerHTML = '<i class="fas fa-sun"></i>';
+        }
+    </script>
+</body>
+</html>
