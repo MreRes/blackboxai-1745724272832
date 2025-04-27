@@ -91,14 +91,18 @@
                                     <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                                         Sumber
                                     </th>
+                                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        Info OCR
+                                    </th>
                                     <th scope="col" class="relative px-6 py-3">
                                         <span class="sr-only">Edit</span>
                                     </th>
                                 </tr>
                             </thead>
                             <tbody id="transactionsTable" class="bg-white divide-y divide-gray-200">
+                                <!-- Loading state -->
                                 <tr>
-                                    <td colspan="7" class="px-6 py-4 text-center text-sm text-gray-500">
+                                    <td colspan="8" class="px-6 py-4 text-center text-sm text-gray-500">
                                         Loading...
                                     </td>
                                 </tr>
@@ -186,6 +190,53 @@
                                     <textarea id="description" name="description" rows="3" class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md"></textarea>
                                 </div>
                             </div>
+                            <!-- Receipt Image Upload -->
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700">Foto Struk</label>
+                                <div class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md">
+                                    <div class="space-y-1 text-center">
+                                        <svg class="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48" aria-hidden="true">
+                                            <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                                        </svg>
+                                        <div class="flex text-sm text-gray-600">
+                                            <label for="receipt" class="relative cursor-pointer bg-white rounded-md font-medium text-indigo-600 hover:text-indigo-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-indigo-500">
+                                                <span>Upload struk</span>
+                                                <input id="receipt" name="receipt" type="file" accept="image/*" class="sr-only" onchange="handleReceiptUpload(event)">
+                                            </label>
+                                            <p class="pl-1">atau drag and drop</p>
+                                        </div>
+                                        <p class="text-xs text-gray-500">PNG, JPG, GIF up to 10MB</p>
+                                    </div>
+                                </div>
+                                <!-- OCR Results Preview -->
+                                <div id="ocrPreview" class="mt-3 hidden">
+                                    <div class="bg-gray-50 p-3 rounded-md">
+                                        <h4 class="text-sm font-medium text-gray-900 mb-2">Hasil Scan Struk:</h4>
+                                        <div class="space-y-2 text-sm text-gray-600">
+                                            <div id="ocrAmount" class="flex justify-between items-center">
+                                                <span>Total:</span>
+                                                <span class="font-medium text-gray-900"></span>
+                                            </div>
+                                            <div id="ocrDate" class="flex justify-between items-center">
+                                                <span>Tanggal:</span>
+                                                <span class="font-medium text-gray-900"></span>
+                                            </div>
+                                            <div id="ocrMerchant" class="flex justify-between items-center">
+                                                <span>Merchant:</span>
+                                                <span class="font-medium text-gray-900"></span>
+                                            </div>
+                                            <div id="ocrItems" class="mt-2">
+                                                <span class="block mb-1">Items:</span>
+                                                <ul class="list-disc list-inside pl-2 text-xs"></ul>
+                                            </div>
+                                        </div>
+                                        <div class="mt-2 text-xs text-gray-500">
+                                            <span id="ocrConfidence"></span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
                             <!-- Date -->
                             <div>
                                 <label for="date" class="block text-sm font-medium text-gray-700">Tanggal</label>
@@ -297,42 +348,73 @@
         // Update transactions table
         const updateTransactionsTable = () => {
             const tbody = document.getElementById('transactionsTable');
-            tbody.innerHTML = transactions.map(t => `
-                <tr>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        ${new Date(t.date).toLocaleDateString('id-ID')}
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap">
-                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                            t.type === 'income' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+            tbody.innerHTML = transactions.map(t => {
+                // Extract OCR info from metadata
+                const metadata = t.metadata || {};
+                const hasOCR = metadata.ocrProcessed;
+                const ocrInfo = [];
+                
+                if (hasOCR) {
+                    if (metadata.amountSource === 'ocr') ocrInfo.push('Total');
+                    if (metadata.dateSource === 'ocr') ocrInfo.push('Tanggal');
+                    if (metadata.categorySource === 'merchant') ocrInfo.push('Kategori');
+                }
+
+                return `
+                    <tr>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                            ${new Date(t.date).toLocaleDateString('id-ID')}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap">
+                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                                t.type === 'income' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                            }">
+                                ${t.type === 'income' ? 'Pemasukan' : 'Pengeluaran'}
+                            </span>
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                            ${t.category}
+                        </td>
+                        <td class="px-6 py-4 text-sm text-gray-500 max-w-md truncate">
+                            ${t.description || '-'}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm ${
+                            t.type === 'income' ? 'text-green-600' : 'text-red-600'
                         }">
-                            ${t.type === 'income' ? 'Pemasukan' : 'Pengeluaran'}
-                        </span>
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                        ${t.category}
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        ${t.description || '-'}
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm ${
-                        t.type === 'income' ? 'text-green-600' : 'text-red-600'
-                    }">
-                        Rp ${t.amount.toLocaleString('id')}
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                        ${t.source}
-                    </td>
-                    <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                        <button onclick="editTransaction('${t._id}')" class="text-indigo-600 hover:text-indigo-900 mr-3">
-                            Edit
-                        </button>
-                        <button onclick="deleteTransaction('${t._id}')" class="text-red-600 hover:text-red-900">
-                            Hapus
-                        </button>
-                    </td>
-                </tr>
-            `).join('');
+                            Rp ${t.amount.toLocaleString('id')}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                            ${t.source === 'whatsapp' ? 
+                                '<span class="text-green-600"><i class="fab fa-whatsapp"></i> WhatsApp</span>' : 
+                                '<span class="text-blue-600"><i class="fas fa-globe"></i> Web</span>'
+                            }
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                            ${hasOCR ? `
+                                <div class="flex items-center">
+                                    <span class="text-indigo-600">
+                                        <i class="fas fa-receipt"></i>
+                                    </span>
+                                    ${metadata.ocrConfidence ? `
+                                        <span class="ml-1 text-xs text-gray-500">${Math.round(metadata.ocrConfidence * 100)}%</span>
+                                    ` : ''}
+                                    ${ocrInfo.length > 0 ? `
+                                        <span class="ml-1 text-xs text-gray-500">(${ocrInfo.join(', ')})</span>
+                                    ` : ''}
+                                </div>
+                            ` : '-'}
+                        </td>
+                        <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                            <button onclick="editTransaction('${t._id}')" class="text-indigo-600 hover:text-indigo-900 mr-3">
+                                Edit
+                            </button>
+                            <button onclick="deleteTransaction('${t._id}')" class="text-red-600 hover:text-red-900">
+                                Hapus
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
         };
 
         // Update pagination
@@ -380,33 +462,42 @@
             e.preventDefault();
             
             const formData = new FormData(e.target);
-            const transaction = {
-                type: formData.get('type'),
-                amount: parseFloat(formData.get('amount')),
-                category: formData.get('category'),
-                description: formData.get('description'),
-                date: formData.get('date')
-            };
+            const receiptFile = document.getElementById('receipt').files[0];
+
+            // Add receipt file if present
+            if (receiptFile) {
+                formData.append('receipt', receiptFile);
+            }
 
             try {
                 const response = await fetch('http://localhost:3000/api/transactions', {
                     method: 'POST',
                     headers: {
-                        'Content-Type': 'application/json',
                         'Authorization': `Bearer ${token}`
                     },
-                    body: JSON.stringify(transaction)
+                    body: formData // Send as FormData to handle file upload
                 });
 
                 const data = await response.json();
                 if (data.success) {
                     closeTransactionModal();
                     fetchTransactions();
+                } else {
+                    throw new Error(data.error || 'Failed to create transaction');
                 }
             } catch (error) {
                 console.error('Error creating transaction:', error);
+                alert('Gagal membuat transaksi: ' + error.message);
             }
         });
+
+        // Reset form and preview when modal is closed
+        function closeTransactionModal() {
+            document.getElementById('transactionModal').classList.add('hidden');
+            document.getElementById('transactionForm').reset();
+            document.getElementById('ocrPreview').classList.add('hidden');
+            document.getElementById('receipt').value = '';
+        }
 
         // Delete transaction
         const deleteTransaction = async (id) => {
@@ -477,6 +568,137 @@
             openTransactionModal();
         };
 
+        // Handle receipt upload and OCR
+        async function handleReceiptUpload(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            // Show loading state
+            const preview = document.getElementById('ocrPreview');
+            preview.classList.remove('hidden');
+            preview.innerHTML = `
+                <div class="flex items-center justify-center p-4">
+                    <svg class="animate-spin h-5 w-5 text-indigo-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    <span class="ml-2 text-sm text-gray-600">Memproses struk...</span>
+                </div>
+            `;
+
+            try {
+                // Create form data
+                const formData = new FormData();
+                formData.append('receipt', file);
+
+                // Send to OCR endpoint
+                const response = await fetch('http://localhost:3000/api/ocr/process', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: formData
+                });
+
+                const data = await response.json();
+                if (data.success) {
+                    updateOCRPreview(data.result);
+                    applyOCRResults(data.result);
+                } else {
+                    throw new Error(data.error || 'Failed to process receipt');
+                }
+            } catch (error) {
+                console.error('Error processing receipt:', error);
+                preview.innerHTML = `
+                    <div class="bg-red-50 p-3 rounded-md">
+                        <p class="text-sm text-red-600">Gagal memproses struk. Silakan coba lagi.</p>
+                    </div>
+                `;
+            }
+        }
+
+        // Update OCR preview section
+        function updateOCRPreview(result) {
+            const preview = document.getElementById('ocrPreview');
+            preview.innerHTML = `
+                <div class="bg-gray-50 p-3 rounded-md">
+                    <h4 class="text-sm font-medium text-gray-900 mb-2">Hasil Scan Struk:</h4>
+                    <div class="space-y-2 text-sm text-gray-600">
+                        <div class="flex justify-between items-center">
+                            <span>Total:</span>
+                            <span class="font-medium text-gray-900">Rp ${result.extractedData.amounts[0]?.toLocaleString('id') || '-'}</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span>Tanggal:</span>
+                            <span class="font-medium text-gray-900">${result.extractedData.dates[0] ? new Date(result.extractedData.dates[0]).toLocaleDateString('id') : '-'}</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span>Merchant:</span>
+                            <span class="font-medium text-gray-900">${result.extractedData.merchants[0] || '-'}</span>
+                        </div>
+                        ${result.extractedData.items.length > 0 ? `
+                            <div class="mt-2">
+                                <span class="block mb-1">Items:</span>
+                                <ul class="list-disc list-inside pl-2 text-xs">
+                                    ${result.extractedData.items.map(item => `<li>${item}</li>`).join('')}
+                                </ul>
+                            </div>
+                        ` : ''}
+                    </div>
+                    ${result.confidence ? `
+                        <div class="mt-2 text-xs text-gray-500">
+                            Akurasi: ${Math.round(result.confidence * 100)}%
+                        </div>
+                    ` : ''}
+                </div>
+            `;
+        }
+
+        // Apply OCR results to form
+        function applyOCRResults(result) {
+            const { extractedData } = result;
+            
+            // Set amount if available
+            if (extractedData.amounts.length > 0) {
+                document.getElementById('amount').value = extractedData.amounts[0];
+            }
+
+            // Set date if available
+            if (extractedData.dates.length > 0) {
+                const dateInput = document.getElementById('date');
+                const date = new Date(extractedData.dates[0]);
+                dateInput._flatpickr.setDate(date);
+            }
+
+            // Set description with merchant and items
+            const description = [];
+            if (extractedData.merchants.length > 0) {
+                description.push(`Merchant: ${extractedData.merchants[0]}`);
+            }
+            if (extractedData.items.length > 0) {
+                description.push(`Items: ${extractedData.items.join(', ')}`);
+            }
+            document.getElementById('description').value = description.join('\n');
+
+            // Try to infer category from merchant name
+            if (extractedData.merchants.length > 0) {
+                const merchantName = extractedData.merchants[0].toLowerCase();
+                const categorySelect = document.getElementById('category');
+                
+                // Simple category inference logic
+                if (/(resto|restaurant|warung|cafe|kedai|makan|food)/.test(merchantName)) {
+                    categorySelect.value = 'makanan';
+                } else if (/(transport|grab|gojek|taxi|bensin|parkir)/.test(merchantName)) {
+                    categorySelect.value = 'transportasi';
+                } else if (/(mart|store|shop|market|mall|retail)/.test(merchantName)) {
+                    categorySelect.value = 'belanja';
+                }
+            }
+
+            // Set transaction type to expense by default for receipts
+            document.querySelector('input[name="type"][value="expense"]').checked = true;
+        }
+
         // Initialize
         fetchCategories();
         fetchTransactions();
@@ -485,6 +707,45 @@
         document.getElementById('typeFilter').addEventListener('change', fetchTransactions);
         document.getElementById('categoryFilter').addEventListener('change', fetchTransactions);
         document.getElementById('search').addEventListener('input', debounce(fetchTransactions, 500));
+
+        // Add drag and drop support for receipt upload
+        const dropZone = document.querySelector('.border-dashed');
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            dropZone.addEventListener(eventName, preventDefaults, false);
+        });
+
+        function preventDefaults(e) {
+            e.preventDefault();
+            e.stopPropagation();
+        }
+
+        ['dragenter', 'dragover'].forEach(eventName => {
+            dropZone.addEventListener(eventName, highlight, false);
+        });
+
+        ['dragleave', 'drop'].forEach(eventName => {
+            dropZone.addEventListener(eventName, unhighlight, false);
+        });
+
+        function highlight(e) {
+            dropZone.classList.add('border-indigo-500');
+        }
+
+        function unhighlight(e) {
+            dropZone.classList.remove('border-indigo-500');
+        }
+
+        dropZone.addEventListener('drop', handleDrop, false);
+
+        function handleDrop(e) {
+            const dt = e.dataTransfer;
+            const file = dt.files[0];
+            
+            if (file && file.type.startsWith('image/')) {
+                document.getElementById('receipt').files = dt.files;
+                handleReceiptUpload({ target: { files: [file] } });
+            }
+        }
 
         // Debounce function
         function debounce(func, wait) {
